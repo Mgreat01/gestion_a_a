@@ -16,7 +16,7 @@ export class Auth {
       email: user.email,
       password: user.password,
     };
-    return firstValueFrom(this.http.post(this.url + 'login/', credentials));
+    return firstValueFrom(this.http.post(this.url + 'login', credentials));
   }
 
   register(user: User): Promise<any> {
@@ -24,6 +24,23 @@ export class Auth {
       ...user,
       role: 'user', 
     };
-    return firstValueFrom(this.http.post(this.url + 'register/', payload));
+    return firstValueFrom(this.http.post(this.url + 'register', payload));
+  }
+
+
+  getToken(): any {
+    return localStorage.getItem('token');
+  }
+
+  setToken(token : string): any {
+    return localStorage.setItem('token', token);
+  }
+
+  removeToken(){
+    return localStorage.removeItem('token')
+  }
+
+  isAuth(){
+    return this.getToken() !== null
   }
 }

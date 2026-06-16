@@ -38,7 +38,7 @@ export class Login {
         this.message = 'Connexion réussie ! Redirection...';
         this.error = '';
         console.log(response);
-         localStorage.setItem('token', response.token);
+        this.auth.setToken(response.access_token);
         setTimeout(() => this.router.navigate(['/dashboard']), 1000);
       })
       .catch(err => {
