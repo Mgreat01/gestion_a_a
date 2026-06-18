@@ -1,0 +1,15 @@
+<div class="bg-slate-900 rounded-xl p-4 h-[600px] overflow-y-auto">
+
+  <h2 class="font-bold mb-4">
+    Live Alerts
+  </h2>
+
+  @for(alert of alerts; track alert.id){
+
+    <app-incident-item
+      [alert]="alert">
+    </app-incident-item>
+
+  }
+
+</div>
