@@ -1,0 +1,15 @@
+<div
+  class="rounded-xl p-5 shadow-lg"
+  [class.bg-red-900]="color === 'red'"
+  [class.bg-orange-900]="color === 'orange'"
+  [class.bg-green-900]="color === 'green'">
+
+  <p class="text-sm text-gray-300">
+    {{ title }}
+  </p>
+
+  <h2 class="text-3xl font-bold mt-2">
+    {{ value }}
+  </h2>
+
+</div>
