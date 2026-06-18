@@ -1,0 +1,49 @@
+<div class="min-h-screen bg-slate-950 text-white p-5">
+
+  <app-header />
+
+  <div class="grid grid-cols-3 gap-4 mb-4">
+
+    <app-stat-card
+      title="ACTIVE ALERTS"
+      [value]="alerts.length.toString()"
+      color="red">
+    </app-stat-card>
+
+    <app-stat-card
+      title="CRITICAL"
+      [value]="alerts.filter(a => a.severity === 'high').length.toString()"
+      color="orange">
+    </app-stat-card>
+
+    <app-stat-card
+      title="RESOLVED"
+      [value]="alerts.filter(a => a.status === 'resolved').length.toString()"
+      color="green">
+    </app-stat-card>
+
+  </div>
+
+  <div class="grid grid-cols-12 gap-4">
+
+    <div class="col-span-8">
+
+      <app-map-view
+        [alerts]="alerts">
+      </app-map-view>
+
+    </div>
+
+    <div class="col-span-4">
+
+      <app-incident-feed
+        [alerts]="alerts">
+      </app-incident-feed>
+
+    </div>
+
+  </div>
+
+  <app-emergency-button />
+
+</div>
