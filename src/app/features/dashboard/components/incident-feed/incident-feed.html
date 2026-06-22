@@ -1,15 +1,12 @@
-<div class="bg-slate-900 rounded-xl p-4 h-[600px] overflow-y-auto">
+<div class="feed-card">
+  <div class="feed-header">
+    <span>LIVE INCIDENT FEED</span>
+    <button type="button">VIEW ALL</button>
+  </div>
 
-  <h2 class="font-bold mb-4">
-    Live Alerts
-  </h2>
-
-  @for(alert of alerts; track alert.id){
-
-    <app-incident-item
-      [alert]="alert">
-    </app-incident-item>
-
-  }
-
+  <div class="feed-list">
+    @for(alert of alerts; track alert.id) {
+      <app-incident-item [alert]="alert"></app-incident-item>
+    }
+  </div>
 </div>

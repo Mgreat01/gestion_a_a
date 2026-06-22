@@ -1,0 +1,44 @@
+:host {
+  display: block;
+}
+
+.feed-card {
+  background: rgba(17, 24, 39, 0.72);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.25);
+}
+
+.feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  margin-bottom: 14px;
+}
+
+.feed-header span {
+  font-size: 12px;
+  letter-spacing: .08em;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.feed-header button {
+  border: none;
+  background: transparent;
+  color: #f87171;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 360px;
+  overflow: auto;
+}
