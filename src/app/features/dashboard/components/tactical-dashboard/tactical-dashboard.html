@@ -1,0 +1,131 @@
+<div class="relative min-h-screen overflow-hidden bg-[#0b0d12] text-slate-100">
+  <div class="absolute inset-0">
+    <app-map-view [alerts]="alerts"></app-map-view>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(96,165,250,0.14),transparent_24%),radial-gradient(circle_at_left,rgba(239,68,68,0.14),transparent_30%),linear-gradient(to_bottom,rgba(10,10,10,0.12),rgba(10,10,10,0.82))]"></div>
+  </div>
+
+  <div class="relative z-20 flex min-h-screen">
+    <app-dashboard-sidebar></app-dashboard-sidebar>
+
+    <div class="flex-1 flex flex-col min-w-0">
+      <header class="sticky top-0 z-30 flex h-18 items-center justify-between border-b border-white/10 bg-slate-950/55 px-4 md:px-6 backdrop-blur-xl shadow-[0_0_18px_rgba(239,68,68,0.08)]">
+        <div class="flex items-center gap-3">
+          <button class="xl:hidden rounded-2xl border border-white/10 bg-white/5 p-2.5" (click)="toggleMobileNav()">
+            <span class="material-symbols-outlined text-red-200">grid_view</span>
+          </button>
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Emergency dashboard</p>
+            <h1 class="text-xl md:text-2xl font-black tracking-[0.04em] text-red-300">RESPONSE COMMAND</h1>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="hidden md:flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-red-100">
+            <span class="h-2 w-2 rounded-full bg-red-400 shadow-[0_0_12px_rgba(248,113,113,0.9)] animate-pulse"></span>
+            Live Secure
+          </div>
+          <button class="relative rounded-full border border-white/10 bg-white/5 p-2.5 text-slate-200">
+            <span class="material-symbols-outlined">notifications</span>
+            <span class="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-400"></span>
+          </button>
+        </div>
+      </header>
+
+      <div *ngIf="mobileNavOpen" class="xl:hidden fixed inset-0 z-40 bg-black/45" (click)="toggleMobileNav()"></div>
+      <aside class="xl:hidden fixed left-0 top-0 z-50 h-full w-72 max-w-[85vw] border-r border-white/10 bg-slate-950/95 p-5 backdrop-blur-xl transition-transform duration-300"
+             [class.translate-x-0]="mobileNavOpen" [class.-translate-x-full]="!mobileNavOpen">
+        <div class="mb-6 flex items-center justify-between">
+          <div>
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Response</p>
+            <p class="text-lg font-bold text-red-300">Navigation</p>
+          </div>
+          <button class="rounded-xl border border-white/10 bg-white/5 p-2" (click)="toggleMobileNav()"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <nav class="space-y-2 text-sm">
+          <a class="flex items-center gap-3 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-red-200"><span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></a>
+          <a class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-300 hover:bg-white/5"><span class="material-symbols-outlined">map</span><span>Incident Map</span></a>
+          <a class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-300 hover:bg-white/5"><span class="material-symbols-outlined">local_shipping</span><span>Fleet</span></a>
+          <a class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-300 hover:bg-white/5"><span class="material-symbols-outlined">assignment</span><span>Reports</span></a>
+        </nav>
+      </aside>
+
+      <main class="relative flex-1 p-4 md:p-6 pb-28 xl:pb-6">
+        <div class="grid gap-4 md:grid-cols-2 2xl:grid-cols-3 2xl:max-w-5xl">
+          <div class="rounded-3xl border border-white/10 bg-slate-950/60 p-5 backdrop-blur-xl shadow-2xl shadow-black/30">
+            <div class="mb-3 flex items-start justify-between"><span class="text-xs font-semibold tracking-[0.18em] text-slate-400">ACTIVE ALERTS</span><span class="material-symbols-outlined text-red-300">warning</span></div>
+            <div class="text-5xl font-black tracking-tight text-red-300">{{ activeAlerts }}</div>
+            <div class="mt-3 flex items-center gap-2 text-sm text-red-200/90"><span class="h-2 w-2 rounded-full bg-red-400 shadow-[0_0_12px_rgba(248,113,113,0.9)]"></span>{{ criticalAlerts }} critical priority</div>
+          </div>
+          <div class="rounded-3xl border border-white/10 bg-slate-950/60 p-5 backdrop-blur-xl shadow-2xl shadow-black/30">
+            <div class="mb-3 flex items-start justify-between"><span class="text-xs font-semibold tracking-[0.18em] text-slate-400">FLEET STATUS</span><span class="material-symbols-outlined text-slate-300">emergency</span></div>
+            <div class="text-5xl font-black tracking-tight">{{ deployedUnits }}</div>
+            <div class="mt-3 text-sm text-slate-300">Units deployed</div>
+          </div>
+          <div class="rounded-3xl border border-white/10 bg-slate-950/60 p-5 backdrop-blur-xl shadow-2xl shadow-black/30 md:col-span-2 2xl:col-span-1">
+            <div class="mb-3 flex items-start justify-between"><span class="text-xs font-semibold tracking-[0.18em] text-slate-400">NET LOAD</span><span class="material-symbols-outlined text-sky-300">query_stats</span></div>
+            <div class="text-5xl font-black tracking-tight text-sky-300">{{ netLoad }}%</div>
+            <div class="mt-4 h-2 rounded-full bg-white/10"><div class="h-2 rounded-full bg-sky-400" [style.width.%]="netLoad"></div></div>
+          </div>
+        </div>
+
+        <div class="mt-6 grid gap-4 xl:grid-cols-[minmax(360px,430px)_1fr] items-end">
+          <section class="rounded-3xl border border-white/10 bg-slate-950/65 p-5 backdrop-blur-xl shadow-2xl shadow-black/30">
+            <div class="mb-4 flex items-center justify-between border-b border-white/10 pb-3">
+              <span class="text-xs font-semibold tracking-[0.18em] text-slate-400">LIVE INCIDENT FEED</span>
+              <button class="text-xs font-bold tracking-[0.15em] text-red-300">VIEW ALL</button>
+            </div>
+            <div class="space-y-3 max-h-[24rem] overflow-auto pr-1">
+              <div *ngFor="let alert of alerts" class="rounded-2xl border border-white/8 bg-white/[0.03] p-4"
+                [ngClass]="{'border-l-4 border-l-red-500': alert.severity === 'high','border-l-4 border-l-amber-400': alert.severity === 'medium','border-l-4 border-l-emerald-400': alert.severity === 'low'}">
+                <div class="flex gap-3">
+                  <div class="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl"
+                    [ngClass]="{'bg-red-500/10 text-red-300': alert.severity === 'high','bg-amber-500/10 text-amber-300': alert.severity === 'medium','bg-emerald-500/10 text-emerald-300': alert.severity === 'low'}">
+                    <span class="material-symbols-outlined">{{ alert.severity === 'high' ? 'local_fire_department' : (alert.severity === 'medium' ? 'warning' : 'medical_services') }}</span>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-start justify-between gap-3"><p class="font-semibold text-slate-100">{{ alertTitle(alert) }}</p><span class="rounded-full bg-white/8 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-300">{{ alert.severity }}</span></div>
+                    <p class="mt-1 text-xs text-slate-400">{{ alert.created_at | date:'short' }} • {{ alert.status }}</p>
+                    <p class="mt-2 text-xs text-slate-500">Lat {{ alert.latitude | number:'1.2-2' }}, Lng {{ alert.longitude | number:'1.2-2' }}</p>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="!alerts.length" class="rounded-2xl border border-dashed border-white/10 p-6 text-center text-sm text-slate-400">No incidents received yet.</div>
+            </div>
+          </section>
+
+          <section class="hidden xl:flex justify-end">
+            <div class="rounded-[2rem] border border-white/10 bg-slate-950/50 p-6 backdrop-blur-xl shadow-2xl shadow-black/30 max-w-md">
+              <div class="mb-4 flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Command status</p>
+                  <h3 class="text-2xl font-black text-slate-100">HQ-ALPHA</h3>
+                </div>
+                <span class="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-emerald-300">Online</span>
+              </div>
+              <div class="grid grid-cols-2 gap-3 text-sm">
+                <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4"><p class="text-slate-400">Coverage</p><p class="mt-2 text-xl font-bold">98.4%</p></div>
+                <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4"><p class="text-slate-400">Dispatch ETA</p><p class="mt-2 text-xl font-bold">3m</p></div>
+                <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4"><p class="text-slate-400">Open Channels</p><p class="mt-2 text-xl font-bold">24</p></div>
+                <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4"><p class="text-slate-400">Air Support</p><p class="mt-2 text-xl font-bold">2</p></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <button class="fixed bottom-24 right-5 z-30 flex flex-col items-center xl:bottom-10 xl:right-10 group">
+    <div class="relative flex h-20 w-20 xl:h-24 xl:w-24 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-700 text-white shadow-[0_0_40px_rgba(239,68,68,0.55)] transition group-hover:scale-105">
+      <div class="absolute inset-0 animate-ping rounded-full bg-red-500/30"></div>
+      <span class="material-symbols-outlined relative text-4xl">emergency</span>
+    </div>
+    <span class="mt-3 text-[11px] font-black uppercase tracking-[0.22em] text-red-200">Emergency Alert</span>
+  </button>
+
+  <nav class="fixed inset-x-0 bottom-0 z-30 flex xl:hidden items-center justify-around border-t border-white/10 bg-slate-950/80 px-3 py-3 backdrop-blur-xl">
+    <button class="flex flex-col items-center gap-1 text-slate-400"><span class="material-symbols-outlined">warning</span><span class="text-[10px] font-bold uppercase tracking-[0.18em]">Alerts</span></button>
+    <button class="flex flex-col items-center gap-1 rounded-2xl bg-white/5 px-4 py-2 text-red-200"><span class="material-symbols-outlined">explore</span><span class="text-[10px] font-bold uppercase tracking-[0.18em]">Map</span></button>
+    <button class="flex flex-col items-center gap-1 text-slate-400"><span class="material-symbols-outlined">emergency</span><span class="text-[10px] font-bold uppercase tracking-[0.18em]">Units</span></button>
+    <button class="flex flex-col items-center gap-1 text-slate-400"><span class="material-symbols-outlined">assignment</span><span class="text-[10px] font-bold uppercase tracking-[0.18em]">Reports</span></button>
+  </nav>
+</div>
