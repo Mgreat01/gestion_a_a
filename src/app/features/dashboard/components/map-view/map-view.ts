@@ -1,42 +1,39 @@
-import { Component, Input, AfterViewInit, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
+
+import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import * as L from 'leaflet';
 import { Alert } from '../../../../models/alert';
 
 @Component({
   selector: 'app-map-view',
   standalone: true,
-  templateUrl: './map-view.html',
-  styleUrl: './map-view.css'
+  imports: [CommonModule],
+  templateUrl: './map-view.html'
 })
-export class MapView implements AfterViewInit, OnChanges, OnDestroy {
+export class MapView implements AfterViewInit, OnChanges {
   @Input() alerts: Alert[] = [];
-  map!: L.Map;
-  markersLayer = L.layerGroup();
-  ringsLayer = L.layerGroup();
-  readonly hqCoords: L.LatLngExpression = [-4.325, 15.322];
+  @Input() mode: 'admin' | 'user' = 'user';
+  @Input() selectedAlertId: string | null = null;
+  private map!: L.Map;
+  private markers: L.LayerGroup = L.layerGroup();
 
   ngAfterViewInit() {
-    this.map = L.map('map', { zoomControl: false, attributionControl: false }).setView(this.hqCoords, 12);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 20 }).addTo(this.map);
-    this.markersLayer.addTo(this.map);
-    this.ringsLayer.addTo(this.map);
-    this.addHQMarker();
-    setTimeout(() => this.map.invalidateSize(), 0);
-    this.renderMarkers();
+    this.map = L.map('map', { zoomControl: false }).setView([-4.325, 15.322], 12);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(this.map);
+    this.markers.addTo(this.map);
+    this.render();
   }
-  ngOnChanges(changes: SimpleChanges): void { if (changes['alerts'] && this.map) this.renderMarkers(); }
-  addHQMarker() {
-    const icon = L.divIcon({ className: '', html: '<div class="hq-pulse"></div><div class="hq-marker"></div><div class="hq-label">HQ-ALPHA</div>', iconSize: [120,60], iconAnchor:[18,18]});
-    L.marker(this.hqCoords, { icon }).addTo(this.map);
-  }
-  renderMarkers(): void {
-    this.markersLayer.clearLayers(); this.ringsLayer.clearLayers();
+  ngOnChanges(changes: SimpleChanges): void { if (this.map) this.render(); }
+
+  render() {
+    this.markers.clearLayers();
+    const hq = L.circleMarker([-4.325, 15.322], { radius: 12, color: '#fb7185', fillColor: '#fb7185', fillOpacity: .9 }).bindPopup('HQ-ALPHA');
+    hq.addTo(this.markers);
     this.alerts.forEach(alert => {
-      const cls = `alert-dot alert-${alert.severity}`;
-      const icon = L.divIcon({ className: '', html: `<div class="${cls}"></div>`, iconSize:[16,16], iconAnchor:[8,8]});
-      L.marker([alert.latitude, alert.longitude], { icon }).bindPopup(`<div style="min-width:150px"><div style="font-weight:700">${alert.severity.toUpperCase()} ALERT</div><div style="font-size:12px;opacity:.8">${alert.status}</div></div>`).addTo(this.markersLayer);
-      L.circle([alert.latitude, alert.longitude], { radius: alert.severity === 'high' ? 850 : alert.severity === 'medium' ? 550 : 350, color: alert.severity === 'high' ? '#ef4444' : alert.severity === 'medium' ? '#f59e0b' : '#10b981', weight: 1, opacity: .45, fillOpacity: .05 }).addTo(this.ringsLayer);
+      const color = alert.severity === 'high' ? '#f43f5e' : alert.severity === 'medium' ? '#f59e0b' : '#10b981';
+      const marker = L.circleMarker([alert.latitude, alert.longitude], { radius: this.selectedAlertId===alert.id ? 14 : 9, color, fillColor: color, fillOpacity: .85, weight: 2 })
+        .bindPopup(`<b>${alert.id}</b><br/>${alert.status} • ${alert.severity}`);
+      marker.addTo(this.markers);
     });
   }
-  ngOnDestroy() { if (this.map) this.map.remove(); }
 }
