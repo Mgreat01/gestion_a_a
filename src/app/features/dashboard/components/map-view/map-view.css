@@ -1,40 +1,12 @@
-:host {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.map-frame {
-  width: 100%;
-  height: 100%;
-  min-height: 100%;
-  border-radius: 24px;
-  overflow: hidden;
-  position: relative;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
-}
-
-/* Leaflet container */
-.leaflet-container {
-  width: 100%;
-  height: 100%;
-  background: #0f172a !important;
-  border-radius: 24px;
-}
-
-/* assombrir OSM */
-.leaflet-tile {
-  filter: grayscale(1) invert(1) brightness(.45) contrast(1.1) hue-rotate(180deg);
-}
-
-/* enlever attribution si tu veux un rendu clean */
-.leaflet-control-attribution {
-  display: none !important;
-}
-
-/* popup / controls un peu plus dark */
-.leaflet-control-zoom a {
-  background: rgba(17,24,39,.85) !important;
-  color: #e5e7eb !important;
-  border: 1px solid rgba(255,255,255,.08) !important;
-}
+:host { display:block; width:100%; height:100%; }
+.map-frame, .leaflet-container { width:100%; height:100%; min-height:100vh; background:#0f172a; }
+.leaflet-tile { filter: grayscale(1) invert(1) brightness(.42) contrast(1.12) hue-rotate(180deg); }
+.leaflet-control-attribution{ display:none !important; }
+.hq-marker{ width:18px; height:18px; border-radius:999px; background:#f87171; border:2px solid #fff; box-shadow:0 0 18px rgba(248,113,113,.95); position:absolute; left:0; top:0; z-index:2; }
+.hq-pulse{ width:42px; height:42px; border-radius:999px; background:rgba(248,113,113,.22); position:absolute; left:-12px; top:-12px; animation:hqPulse 2s infinite; }
+.hq-label{ position:absolute; top:24px; left:-8px; padding:4px 10px; border-radius:999px; background:rgba(15,23,42,.82); color:#fecaca; border:1px solid rgba(248,113,113,.3); font-size:10px; font-weight:700; letter-spacing:.16em; white-space:nowrap; }
+.alert-dot{ width:16px; height:16px; border-radius:999px; box-shadow:0 0 18px currentColor; border:2px solid rgba(255,255,255,.9); }
+.alert-high{ background:#ef4444; color:#ef4444; }
+.alert-medium{ background:#f59e0b; color:#f59e0b; }
+.alert-low{ background:#10b981; color:#10b981; }
+@keyframes hqPulse{0%{transform:scale(1);opacity:.45}70%{transform:scale(1.4);opacity:0}100%{transform:scale(1.4);opacity:0}}
