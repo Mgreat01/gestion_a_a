@@ -1,29 +1,47 @@
-export interface Alert {
 
-  id: string;
-  user_id: string;
+export type AlertSeverity = 'low' | 'medium' | 'high';
+export type AlertStatus = 'active' | 'acknowledged' | 'resolved';
 
-  encrypted_content: string;
-  encrypted_key: string;
-
+export interface AlertLocationPoint {
   latitude: number;
   longitude: number;
+  accuracy?: number;
+  created_at?: string;
+}
 
-  location: {
-    type: string;
-    coordinates: number[];
-  };
-
-  severity: 'low' | 'medium' | 'high';
-
-  status: 'active' | 'acknowledged' | 'resolved';
-
+export interface Alert {
+  id: string;
+  user_id: string;
+  encrypted_content: string;
+  encrypted_key: string;
+  latitude: number;
+  longitude: number;
+  location?: string | { type: string; coordinates: number[] };
+  severity: AlertSeverity;
+  status: AlertStatus;
   assigned_to: string | null;
-
   created_at: string;
-
   acknowledged_at: string | null;
-
   resolved_at: string | null;
+}
 
+export interface CreateAlertPayload {
+  encrypted_content: string;
+  encrypted_key: string;
+  latitude: number;
+  longitude: number;
+  severity: AlertSeverity;
+}
+
+export interface UpdateAlertPayload {
+  status?: AlertStatus;
+  assigned_to?: string | null;
+  severity?: AlertSeverity;
+}
+
+export interface CreateLocationPayload {
+  alert_id: string;
+  latitude: number;
+  longitude: number;
+  accuracy: number;
 }

@@ -1,7 +1,16 @@
+
 export interface User {
-    id?: number;
-    username?: string;
-    email: string;
-    role?: string;
-    password?: string;
+  id?: string;
+  username?: string;
+  email: string;
+  role?: 'admin' | 'user';
+  password?: string;
+}
+
+export interface AuthMeResponse {
+  id?: string;
+  email?: string;
+  role?: 'admin' | 'user';
+  username?: string;
+  full_name?: string;
 }
