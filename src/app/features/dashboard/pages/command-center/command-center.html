@@ -1,1 +1,1 @@
-<app-tactical-dashboard [alerts]="alerts"></app-tactical-dashboard>
+<app-tactical-dashboard [alerts]="alerts" [currentUser]="currentUser" [loading]="loading" [error]="error" (refresh)="onRefresh()" (createAlert)="onCreateAlert($event)" (updateAlert)="onUpdateAlert($event)"></app-tactical-dashboard>
