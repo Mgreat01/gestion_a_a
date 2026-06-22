@@ -1,46 +1,37 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { User } from '../models/user';
+import { AuthMeResponse, User } from '../models/user';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class Auth {
-  private url = 'http://localhost:8000/auth/';
-
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
+  private url = 'http://127.0.0.1:8000/auth/';
 
   login(user: User): Promise<any> {
-    const credentials = {
-      email: user.email,
-      password: user.password,
-    };
-    return firstValueFrom(this.http.post(this.url + 'login', credentials));
+    return firstValueFrom(this.http.post(this.url + 'login', { email: user.email, password: user.password }));
   }
 
   register(user: User): Promise<any> {
-    const payload = {
-      ...user,
-      role: 'user', 
-    };
-    return firstValueFrom(this.http.post(this.url + 'register', payload));
+    return firstValueFrom(this.http.post(this.url + 'register', { ...user, role: 'user' }));
   }
 
-
-  getToken(): any {
-    return localStorage.getItem('token');
+  me(): Promise<AuthMeResponse> {
+    return firstValueFrom(this.http.get<AuthMeResponse>(this.url + 'me', { headers: this.authHeaders() }));
   }
 
-  setToken(token : string): any {
-    return localStorage.setItem('token', token);
+  getToken(){ return localStorage.getItem('token'); }
+  setToken(token: string){ localStorage.setItem('token', token); }
+  removeToken(){ localStorage.removeItem('token'); localStorage.removeItem('me'); }
+  isAuth(){ return !!this.getToken(); }
+
+  authHeaders(): HttpHeaders {
+    return new HttpHeaders({ Authorization: `Bearer ${this.getToken() ?? ''}` });
   }
 
-  removeToken(){
-    return localStorage.removeItem('token')
-  }
-
-  isAuth(){
-    return this.getToken() !== null
+  setMe(me: AuthMeResponse){ localStorage.setItem('me', JSON.stringify(me)); }
+  getMeCache(): AuthMeResponse | null {
+    const raw = localStorage.getItem('me'); return raw ? JSON.parse(raw) : null;
   }
 }
