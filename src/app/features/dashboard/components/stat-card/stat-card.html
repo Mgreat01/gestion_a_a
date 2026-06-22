@@ -1,15 +1,13 @@
-<div
-  class="rounded-xl p-5 shadow-lg"
-  [class.bg-red-900]="color === 'red'"
-  [class.bg-orange-900]="color === 'orange'"
-  [class.bg-green-900]="color === 'green'">
+<div class="stat-card" [ngClass]="color">
+  <div class="card-top">
+    <span class="card-title">{{ title }}</span>
+    <span class="material-symbols-outlined card-icon">{{ icon }}</span>
+  </div>
 
-  <p class="text-sm text-gray-300">
-    {{ title }}
-  </p>
+  <div class="card-value">{{ value }}</div>
 
-  <h2 class="text-3xl font-bold mt-2">
-    {{ value }}
-  </h2>
-
+  <div class="card-footer" *ngIf="subtitle">
+    <span class="status-dot"></span>
+    <span>{{ subtitle }}</span>
+  </div>
 </div>
