@@ -1,10 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Header } from '../../components/header/header';
-import { StatCard } from '../../components/stat-card/stat-card';
-import { MapView } from '../../components/map-view/map-view';
-import { IncidentFeed } from '../../components/incident-feed/incident-feed';
-import { EmergencyButton } from '../../components/emergency-button/emergency-button';
+import { TacticalDashboard } from '../../components/tactical-dashboard/tactical-dashboard';
 
 import { Alert } from '../../../../models/alert';
 import { Dashboard } from '../../../../core/dashboard';
@@ -13,13 +9,7 @@ import { interval } from 'rxjs';
 @Component({
   selector: 'app-command-center',
   standalone: true,
-  imports: [
-    Header,
-    StatCard,
-    MapView,
-    IncidentFeed,
-    EmergencyButton
-  ],
+  imports: [TacticalDashboard],
   templateUrl: './command-center.html',
   styleUrl: './command-center.css'
 })
