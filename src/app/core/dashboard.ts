@@ -7,7 +7,9 @@ import { Auth } from './auth';
 export class Dashboard {
   private http = inject(HttpClient); private auth = inject(Auth); private base='http://127.0.0.1:8000';
   getAlerts():Observable<Alert[]>{return this.http.get<Alert[]>(`${this.base}/alerts/`,{headers:this.auth.authHeaders()})}
-  createAlert(payload:CreateAlertPayload):Observable<Alert>{return this.http.post<Alert>(`${this.base}/alerts/`,payload,{headers:this.auth.authHeaders()})}
+  createAlert(payload:CreateAlertPayload):Observable<Alert>{
+    console.log('Creating alert with payload: %o', payload);
+    return this.http.post<Alert>(`${this.base}/alerts/`,payload,{headers:this.auth.authHeaders()})}
   updateAlert(alertId:string,payload:UpdateAlertPayload):Observable<any>{return this.http.put(`${this.base}/alerts/${alertId}`,payload,{headers:this.auth.authHeaders()})}
   createLocation(payload:CreateLocationPayload):Observable<any>{return this.http.post(`${this.base}/locations/`,payload,{headers:this.auth.authHeaders()})}
   getLocations(alertId:string):Observable<any>{return this.http.get(`${this.base}/locations/${alertId}`,{headers:this.auth.authHeaders()})}

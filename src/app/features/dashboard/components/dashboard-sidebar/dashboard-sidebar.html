@@ -1,40 +1,4 @@
-<aside
-  class="hidden lg:flex h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-slate-950/80 backdrop-blur-xl px-5 py-6 text-slate-100"
->
-  <div class="mb-8 flex items-center gap-3">
-    <div class="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-slate-900">
-      <span class="material-symbols-outlined text-rose-300">shield_person</span>
-    </div>
-    <div>
-      <p class="text-sm font-semibold text-white">Cmdr. Sterling</p>
-      <p class="text-xs text-slate-400">Sector 7 Admin</p>
-    </div>
-  </div>
-
-  <nav class="flex flex-1 flex-col gap-2">
-    <a class="flex items-center gap-3 rounded-2xl border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-rose-300">
-      <span class="material-symbols-outlined text-[20px]">dashboard</span>
-      <span class="text-sm font-medium">Dashboard</span>
-    </a>
-    <a class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-300 transition hover:bg-white/5 hover:text-white">
-      <span class="material-symbols-outlined text-[20px]">map</span>
-      <span class="text-sm font-medium">Incident Map</span>
-    </a>
-    <a class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-300 transition hover:bg-white/5 hover:text-white">
-      <span class="material-symbols-outlined text-[20px]">local_shipping</span>
-      <span class="text-sm font-medium">Resource Fleet</span>
-    </a>
-    <a class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-300 transition hover:bg-white/5 hover:text-white">
-      <span class="material-symbols-outlined text-[20px]">groups</span>
-      <span class="text-sm font-medium">Personnel</span>
-    </a>
-    <a class="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-300 transition hover:bg-white/5 hover:text-white">
-      <span class="material-symbols-outlined text-[20px]">database</span>
-      <span class="text-sm font-medium">System Logs</span>
-    </a>
-  </nav>
-
-  <div class="pt-6">
-    <p class="text-3xl font-black tracking-[0.25em] text-rose-400/90">RESPONSE</p>
-  </div>
-</aside>
+<aside class="hidden lg:flex h-screen w-80 shrink-0 flex-col border-r border-white/10 bg-slate-950/95 px-5 py-6 text-slate-100 backdrop-blur-2xl">
+<div class="mb-8 flex items-center gap-4"><div class="flex h-14 w-14 items-center justify-center rounded-3xl bg-gradient-to-br from-rose-500/20 via-fuchsia-500/15 to-cyan-500/20 ring-1 ring-white/10"><span class="material-symbols-outlined text-rose-300">shield_person</span></div><div><p class="text-base font-bold tracking-wide text-white">Emergency Nexus</p><p class="text-xs text-slate-400">{{ role==='admin' ? 'Centre de commandement' : 'Espace terrain' }}</p></div></div>
+<nav class="flex flex-1 flex-col gap-2"> <button *ngFor="let item of items" (click)="viewChange.emit(item.key)" class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-left transition-all" [ngClass]="activeView===item.key ? 'border border-rose-500/20 bg-gradient-to-r from-rose-500/15 to-fuchsia-500/10 text-white' : 'border border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5 hover:text-white'"><div class="flex h-11 w-11 items-center justify-center rounded-2xl" [ngClass]="activeView===item.key ? 'bg-white/10' : 'bg-white/[0.04]'"><span class="material-symbols-outlined">{{item.icon}}</span></div><div><p class="text-sm font-semibold">{{item.label}}</p><p class="text-xs text-slate-400">{{item.hint}}</p></div></button></nav>
+<div class="rounded-3xl border border-cyan-500/10 bg-cyan-500/5 p-4 text-xs text-slate-300"><p class="font-semibold text-white">Emergency network</p><p class="mt-2">Supervision temps réel, création d’alertes et coordination terrain.</p></div></aside>
