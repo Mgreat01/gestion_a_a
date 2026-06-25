@@ -14,26 +14,49 @@ export class MapView implements AfterViewInit, OnChanges {
   @Input() alerts: Alert[] = [];
   @Input() mode: 'admin' | 'user' = 'user';
   @Input() selectedAlertId: string | null = null;
-  private map!: L.Map;
-  private markers: L.LayerGroup = L.layerGroup();
+  private map?: L.Map;
+  private markers = L.layerGroup();
 
   ngAfterViewInit() {
-    this.map = L.map('map', { zoomControl: false }).setView([-4.325, 15.322], 12);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(this.map);
+    if (this.map) return;
+    this.map = L.map('map', { zoomControl: true }).setView([-4.325, 15.322], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(this.map);
     this.markers.addTo(this.map);
-    this.render();
+    setTimeout(() => { this.map?.invalidateSize(); this.render(); }, 0);
   }
-  ngOnChanges(changes: SimpleChanges): void { if (this.map) this.render(); }
 
-  render() {
+  ngOnChanges(_: SimpleChanges): void {
+    if (this.map) setTimeout(() => { this.map?.invalidateSize(); this.render(); }, 0);
+  }
+
+  private render() {
+    if (!this.map) return;
     this.markers.clearLayers();
-    const hq = L.circleMarker([-4.325, 15.322], { radius: 12, color: '#fb7185', fillColor: '#fb7185', fillOpacity: .9 }).bindPopup('HQ-ALPHA');
-    hq.addTo(this.markers);
-    this.alerts.forEach(alert => {
+    const pts: L.LatLngTuple[] = [];
+
+    for (const alert of this.alerts ?? []) {
+      const lat = Number(alert.latitude), lng = Number(alert.longitude);
+      if (Number.isNaN(lat) || Number.isNaN(lng)) continue;
+      pts.push([lat, lng]);
+
       const color = alert.severity === 'high' ? '#f43f5e' : alert.severity === 'medium' ? '#f59e0b' : '#10b981';
-      const marker = L.circleMarker([alert.latitude, alert.longitude], { radius: this.selectedAlertId===alert.id ? 14 : 9, color, fillColor: color, fillOpacity: .85, weight: 2 })
-        .bindPopup(`<b>${alert.id}</b><br/>${alert.status} • ${alert.severity}`);
-      marker.addTo(this.markers);
-    });
+      L.circleMarker([lat, lng], {
+        radius: this.selectedAlertId === alert.id ? 13 : 9,
+        color, fillColor: color, fillOpacity: .9, weight: 2
+      })
+      .bindPopup(`<b>Alert #${alert.id.slice(0,8)}</b><br>${alert.status} • ${alert.severity}<br>${alert.location ?? `${lat}, ${lng}`}`)
+      .addTo(this.markers);
+
+      L.circle([lat, lng], {
+        radius: this.selectedAlertId === alert.id ? 220 : 140,
+        color, fillColor: color, fillOpacity: .08, weight: 1
+      }).addTo(this.markers);
+    }
+
+    if (pts.length) this.map.fitBounds(L.latLngBounds(pts).pad(0.25));
+    else this.map.setView([-4.325, 15.322], 12);
   }
 }
