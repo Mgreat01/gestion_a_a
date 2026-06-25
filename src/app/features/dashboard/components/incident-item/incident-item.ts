@@ -6,7 +6,7 @@ import { DatePipe, NgClass } from '@angular/common';
 @Component({
   selector: 'app-incident-item',
   standalone: true,
-  imports: [ DatePipe , NgClass],
+  imports: [ DatePipe],
   templateUrl: './incident-item.html',
   styleUrl: './incident-item.css'
 })
