@@ -1,4 +1,28 @@
-<aside class="hidden lg:flex h-screen w-80 shrink-0 flex-col border-r border-white/10 bg-slate-950/95 px-5 py-6 text-slate-100 backdrop-blur-2xl">
-<div class="mb-8 flex items-center gap-4"><div class="flex h-14 w-14 items-center justify-center rounded-3xl bg-gradient-to-br from-rose-500/20 via-fuchsia-500/15 to-cyan-500/20 ring-1 ring-white/10"><span class="material-symbols-outlined text-rose-300">shield_person</span></div><div><p class="text-base font-bold tracking-wide text-white">Emergency Nexus</p><p class="text-xs text-slate-400">{{ role==='admin' ? 'Centre de commandement' : 'Espace terrain' }}</p></div></div>
-<nav class="flex flex-1 flex-col gap-2"> <button *ngFor="let item of items" (click)="viewChange.emit(item.key)" class="group flex items-center gap-3 rounded-2xl px-4 py-3 text-left transition-all" [ngClass]="activeView===item.key ? 'border border-rose-500/20 bg-gradient-to-r from-rose-500/15 to-fuchsia-500/10 text-white' : 'border border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5 hover:text-white'"><div class="flex h-11 w-11 items-center justify-center rounded-2xl" [ngClass]="activeView===item.key ? 'bg-white/10' : 'bg-white/[0.04]'"><span class="material-symbols-outlined">{{item.icon}}</span></div><div><p class="text-sm font-semibold">{{item.label}}</p><p class="text-xs text-slate-400">{{item.hint}}</p></div></button></nav>
-<div class="rounded-3xl border border-cyan-500/10 bg-cyan-500/5 p-4 text-xs text-slate-300"><p class="font-semibold text-white">Emergency network</p><p class="mt-2">Supervision temps réel, création d’alertes et coordination terrain.</p></div></aside>
+<aside class="hidden h-screen w-72 shrink-0 flex-col border-r border-[#d9e4df] bg-white px-4 py-5 text-[#17201c] lg:flex">
+  <div class="mb-7 flex items-center gap-3 px-2">
+    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-[#e8f5f3] text-[#0f766e] ring-1 ring-[#b9d9d4]">
+      <span class="material-symbols-outlined">shield_person</span>
+    </div>
+    <div>
+      <p class="text-base font-bold text-[#17201c]">Emergency Nexus</p>
+      <p class="text-xs text-[#65736d]">{{ role==='admin' ? 'Centre de commandement' : 'Espace terrain' }}</p>
+    </div>
+  </div>
+
+  <nav class="flex flex-1 flex-col gap-1.5">
+    <button *ngFor="let item of items" type="button" (click)="viewChange.emit(item.key)" class="group flex items-center gap-3 rounded-lg border px-3 py-3 text-left transition" [ngClass]="activeView===item.key ? 'border-[#b9d9d4] bg-[#e8f5f3] text-[#0f766e]' : 'border-transparent text-[#65736d] hover:border-[#d9e4df] hover:bg-[#f8fafc] hover:text-[#17201c]'">
+      <span class="flex h-10 w-10 items-center justify-center rounded-lg" [ngClass]="activeView===item.key ? 'bg-white text-[#0f766e]' : 'bg-[#f4f7f5] text-[#65736d]'">
+        <span class="material-symbols-outlined text-[22px]">{{item.icon}}</span>
+      </span>
+      <span>
+        <span class="block text-sm font-semibold">{{item.label}}</span>
+        <span class="block text-xs text-[#65736d]">{{item.hint}}</span>
+      </span>
+    </button>
+  </nav>
+
+  <div class="rounded-lg border border-[#d9e4df] bg-[#f8fafc] p-4 text-xs leading-5 text-[#65736d]">
+    <p class="font-semibold text-[#17201c]">Emergency network</p>
+    <p class="mt-2">Supervision temps réel, création d'alertes et coordination terrain.</p>
+  </div>
+</aside>
