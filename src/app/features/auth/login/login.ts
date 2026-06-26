@@ -1,14 +1,14 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';   
+import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../../core/auth';
 import { User } from '../../../models/user';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, RouterLink, CommonModule],   
+  imports: [FormsModule, RouterLink, CommonModule],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
@@ -18,8 +18,8 @@ export class Login {
     password: ''
   };
 
-  message: string = '';
-  error: string = '';
+  message = '';
+  error = '';
 
   constructor(
     private auth: Auth,
@@ -28,7 +28,7 @@ export class Login {
 
   onSubmit(): void {
     const user: User = {
-      username: '',        
+      username: '',
       email: this.credentials.email,
       password: this.credentials.password
     };
@@ -37,7 +37,6 @@ export class Login {
       .then(response => {
         this.message = 'Connexion réussie ! Redirection...';
         this.error = '';
-        console.log(response);
         this.auth.setToken(response.access_token);
         setTimeout(() => this.router.navigate(['/dashboard']), 1000);
       })
