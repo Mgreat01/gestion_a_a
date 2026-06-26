@@ -45,6 +45,25 @@ export class TacticalDashboard {
     severity: 'high'
   };
 
+  get sidebarItems(): { key: SidebarView; label: string }[] {
+    return this.isAdmin
+      ? [
+          { key: 'dashboard', label: 'Dashboard' },
+          { key: 'alerts', label: 'Alertes' },
+          { key: 'map', label: 'Carte' },
+          { key: 'analytics', label: 'Analytics' },
+          { key: 'profile', label: 'Profil' },
+          { key: 'settings', label: 'Paramètres' }
+        ]
+      : [
+          { key: 'dashboard', label: 'Accueil' },
+          { key: 'alerts', label: 'Mes alertes' },
+          { key: 'map', label: 'Carte' },
+          { key: 'profile', label: 'Profil' },
+          { key: 'settings', label: 'Paramètres' }
+        ];
+  }
+
   get isAdmin(): boolean {
     return this.currentUser?.role === 'admin';
   }
@@ -98,13 +117,13 @@ export class TacticalDashboard {
   severityClass(severity: AlertSeverity): string {
     switch (severity) {
       case 'high':
-        return 'bg-rose-500/15 text-rose-200 border border-rose-400/30';
+        return 'bg-red-50 text-red-800 border border-red-200';
       case 'medium':
-        return 'bg-amber-500/15 text-amber-200 border border-amber-400/30';
+        return 'bg-amber-50 text-amber-800 border border-amber-200';
       case 'low':
-        return 'bg-emerald-500/15 text-emerald-200 border border-emerald-400/30';
+        return 'bg-emerald-50 text-emerald-800 border border-emerald-200';
       default:
-        return 'bg-white/10 text-white border border-white/10';
+        return 'bg-slate-50 text-slate-700 border border-slate-200';
     }
   }
 
