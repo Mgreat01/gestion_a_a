@@ -1,11 +1,11 @@
-
-<div class="overflow-hidden rounded-[28px] border border-white/10 bg-slate-950 shadow-2xl shadow-black/30">
-  <div class="flex items-center justify-between border-b border-white/10 px-5 py-4">
+<section class="map-panel">
+  <div class="map-panel__header">
     <div>
-      <p class="text-xs uppercase tracking-[0.25em] text-slate-400">OpenStreetMap</p>
-      <h3 class="mt-1 text-lg font-semibold text-white">{{ mode === 'admin' ? 'Operational Map' : 'My Alerts Map' }}</h3>
+      <p class="eyebrow">OpenStreetMap</p>
+      <h3>{{ mode === 'admin' ? 'Carte opérationnelle' : 'Carte de mes alertes' }}</h3>
     </div>
-    <span class="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-xs text-cyan-300">Live</span>
+    <span class="live-pill">Live</span>
   </div>
-  <div id="map" class="h-[420px] w-full lg:h-[620px]"></div>
-</div>
+
+  <div #mapContainer class="map-canvas" aria-label="Carte des alertes"></div>
+</section>
