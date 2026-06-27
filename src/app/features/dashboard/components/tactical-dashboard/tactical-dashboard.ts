@@ -44,6 +44,7 @@ export class TacticalDashboard {
     longitude: 0,
     severity: 'high'
   };
+type: any;
 
   get sidebarItems(): { key: SidebarView; label: string }[] {
     return this.isAdmin

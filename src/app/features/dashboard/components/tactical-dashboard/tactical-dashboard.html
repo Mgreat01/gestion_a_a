@@ -1,13 +1,13 @@
-<div class="min-h-screen bg-[#f4f7f5] text-[#17201c]">
-  <div class="flex min-h-screen">
+<div class="h-screen overflow-hidden bg-[#f4f7f5] text-[#17201c]">
+  <div class="flex h-full ">
     <app-dashboard-sidebar
       [role]="isAdmin ? 'admin' : 'user'"
       [activeView]="activeView"
       (viewChange)="activeView=$event">
     </app-dashboard-sidebar>
 
-    <div class="min-w-0 flex-1">
-      <header class="sticky top-0 z-30 border-b border-[#d9e4df] bg-white/90 backdrop-blur-xl">
+    <div class="flex flex-col flex-1 overflow-hidden">
+      <header class="sticky top-0 z-50 shrink-0 border-b border-[#d9e4df] bg-white/90 backdrop-blur-xl">
         <div class="flex flex-wrap items-center justify-between gap-4 px-4 py-4 lg:px-8">
           <div>
             <p class="text-xs font-bold uppercase text-[#65736d]">Emergency response platform</p>
@@ -32,7 +32,7 @@
         </nav>
       </header>
 
-      <main class="space-y-6 px-4 py-6 lg:px-8">
+      <main class="flex-1 overflow-y-auto space-y-6 px-4 py-6 lg:px-8">
         <section *ngIf="activeView==='dashboard'" class="space-y-6">
           <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <div class="rounded-lg border border-[#d9e4df] bg-white p-5 shadow-sm">
@@ -54,8 +54,7 @@
           </div>
 
           <div class="grid gap-6 xl:grid-cols-[1.45fr_0.95fr]">
-            <app-map-view [alerts]="filteredAlerts" [mode]="isAdmin ? 'admin':'user'" [selectedAlertId]="selectedAlert?.id ?? null"></app-map-view>
-
+            
             <section class="rounded-lg border border-[#d9e4df] bg-white p-5 shadow-sm">
               <div class="mb-4 flex items-center justify-between gap-3">
                 <div>
