@@ -16,7 +16,7 @@ export interface Alert {
   encrypted_key: string;
   latitude: number;
   longitude: number;
-  location?: string | { type: string; coordinates: number[] };
+  location:  Location;
   severity: AlertSeverity;
   status: AlertStatus;
   assigned_to: string | null;
@@ -28,8 +28,8 @@ export interface Alert {
 export interface CreateAlertPayload {
   encrypted_content: string;
   encrypted_key: string;
-  latitude: number;
-  longitude: number;
+  latitude?: number;
+  longitude?: number;
   severity: AlertSeverity;
 }
 
@@ -44,4 +44,10 @@ export interface CreateLocationPayload {
   latitude: number;
   longitude: number;
   accuracy: number;
+}
+
+
+export interface Location {
+  type: string;
+  coordinates: number[]
 }

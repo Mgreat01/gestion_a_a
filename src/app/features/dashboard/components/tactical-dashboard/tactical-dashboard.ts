@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import {
@@ -12,6 +12,7 @@ import {
 import { AuthMeResponse } from '../../../../models/user';
 import { MapView } from '../map-view/map-view';
 import { DashboardSidebar, SidebarView } from '../dashboard-sidebar/dashboard-sidebar';
+import { Dashboard } from '../../../../core/dashboard';
 
 @Component({
   selector: 'app-tactical-dashboard',
@@ -19,7 +20,11 @@ import { DashboardSidebar, SidebarView } from '../dashboard-sidebar/dashboard-si
   imports: [CommonModule, DatePipe, FormsModule, MapView, DashboardSidebar],
   templateUrl: './tactical-dashboard.html'
 })
-export class TacticalDashboard {
+export class TacticalDashboard implements OnInit {
+  ngOnInit(): void {
+    this.loadLocalisation();
+    this.reverseGeocode(this.coords?.latitude ?? 0, this.coords?.longitude ?? 0);
+  }
   @Input() alerts: Alert[] = [];
   @Input() currentUser: AuthMeResponse | null = null;
   @Input() loading = false;
@@ -28,6 +33,9 @@ export class TacticalDashboard {
   @Output() refresh = new EventEmitter<void>();
   @Output() createAlert = new EventEmitter<CreateAlertPayload>();
   @Output() updateAlert = new EventEmitter<{ alertId: string; payload: UpdateAlertPayload }>();
+  private openApiUrl =  'https://nominatim.openstreetmap.org/reverse';
+  private dashboardService = inject(Dashboard);
+  coords: { latitude: number; longitude: number } | null = null;
 
   selectedAlert: Alert | null = null;
   activeView: SidebarView = 'dashboard';
@@ -147,12 +155,46 @@ type: any;
     this.createAlert.emit({ ...this.draft });
     this.showCreateModal = false;
 
-    this.draft = {
+    this.loadLocalisation().then(() => {
+      this.draft = {
       encrypted_content: '',
       encrypted_key: '',
-      latitude: 0,
-      longitude: 0,
+      latitude: this.coords?.latitude,
+      longitude: this.coords?.longitude,
       severity: 'high'
     };
+    console.log('Draft alert:', this.draft);
+    });
   }
+
+  reverseGeocode(lat: number, lon: number): Promise<any> {
+    const url = `${this.openApiUrl}?lat=${lat}&lon=${lon}&format=json`;
+    return fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        return data;
+      })
+      .catch(error => {
+        console.error('Error during reverse geocoding:', error);
+        return null;
+      });
+  }
+
+  loadLocalisation(): Promise<{ latitude: number; longitude: number } | undefined> {
+    return this.dashboardService.getCurrentPosition()
+      .then((pos) => {
+        this.coords = {
+          latitude: pos.latitude,
+          longitude: pos.longitude
+        };
+        console.log('Current position:', this.coords);
+        return this.coords;
+      })
+      .catch((err) => {
+        this.error = String(err);
+        return undefined;
+      });
+  }
+
 }
