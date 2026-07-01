@@ -7,7 +7,7 @@ import { AuthMeResponse, User } from '../models/user';
 @Injectable({ providedIn: 'root' })
 export class Auth {
   private http = inject(HttpClient);
-  private url = 'http://127.0.0.1:8000/auth/';
+  private url = '/auth/';
 
   login(user: User): Promise<any> {
     return firstValueFrom(this.http.post(this.url + 'login', { email: user.email, password: user.password }));
