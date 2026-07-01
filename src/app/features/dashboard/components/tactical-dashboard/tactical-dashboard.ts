@@ -33,7 +33,7 @@ export class TacticalDashboard implements OnInit {
   @Output() refresh = new EventEmitter<void>();
   @Output() createAlert = new EventEmitter<CreateAlertPayload>();
   @Output() updateAlert = new EventEmitter<{ alertId: string; payload: UpdateAlertPayload }>();
-  private openApiUrl =  'https://nominatim.openstreetmap.org/reverse';
+  private openApiUrl =  '/nominatim/reverse';
   private dashboardService = inject(Dashboard);
   coords: { latitude: number; longitude: number } | null = null;
 

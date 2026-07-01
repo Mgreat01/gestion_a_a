@@ -69,7 +69,7 @@
                   <div class="flex items-start justify-between gap-3">
                     <div>
                       <p class="font-semibold text-[#17201c]">Alerte #{{ a.id.slice(0,8) }}</p>
-                      <p class="mt-1 text-xs text-[#65736d]">{{ a.location.coordinates[1] }}, {{ a.location.coordinates[0] }}</p>
+                      <p class="mt-1 text-xs text-[#65736d]">{{ a.adresse || a.location.coordinates[1] + ', ' + a.location.coordinates[0] }}</p>
                     </div>
                     <span class="rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="severityClass(a.severity)">{{ a.severity }}</span>
                   </div>
@@ -170,7 +170,10 @@
     <div class="mt-6 space-y-4">
       <div class="rounded-lg border border-[#d9e4df] bg-[#f8fafc] p-4"><p class="text-sm text-[#65736d]">Statut</p><p class="mt-1 text-lg font-semibold">{{ selectedAlert.status }}</p></div>
       <div class="rounded-lg border border-[#d9e4df] bg-[#f8fafc] p-4"><p class="text-sm text-[#65736d]">Sévérité</p><p class="mt-1 text-lg font-semibold">{{ selectedAlert.severity }}</p></div>
-      <div class="rounded-lg border border-[#d9e4df] bg-[#f8fafc] p-4"><p class="text-sm text-[#65736d]">Localisation</p><p class="mt-1 text-sm leading-6">{{reverseGeocode(selectedAlert.latitude,selectedAlert.longitude)}}</p></div>
+      <div *ngIf="selectedAlert.adresse != null; else coordinatesBlock" class="rounded-lg border border-[#d9e4df] bg-[#f8fafc] p-4"><p class="text-sm text-[#65736d]">Localisation</p><p class="mt-1 text-sm leading-6">{{ selectedAlert.adresse }}</p></div>
+      <ng-template #coordinatesBlock>
+        <div class="rounded-lg border border-[#d9e4df] bg-[#f8fafc] p-4"><p class="text-sm text-[#65736d]">Localisation</p><p class="mt-1 text-sm leading-6">{{ selectedAlert.latitude }}, {{ selectedAlert.longitude }}</p></div>
+      </ng-template>
       <div class="rounded-lg border border-[#d9e4df] bg-[#f8fafc] p-4"><p class="text-sm text-[#65736d]">Contenu chiffré</p><p class="mt-2 break-all font-mono text-xs leading-6 text-[#24302b]">{{ selectedAlert.encrypted_content }}</p></div>
       <div *ngIf="isAdmin" class="grid grid-cols-2 gap-3 pt-2">
         <button type="button" (click)="markStatus(selectedAlert,'acknowledged')" class="rounded-lg bg-amber-600 px-4 py-3 font-semibold text-white">Acknowledge</button>

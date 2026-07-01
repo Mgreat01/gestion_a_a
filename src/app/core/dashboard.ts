@@ -5,7 +5,7 @@ import { Alert, CreateAlertPayload, CreateLocationPayload, UpdateAlertPayload } 
 import { Auth } from './auth';
 @Injectable({ providedIn: 'root' })
 export class Dashboard {
-  private http = inject(HttpClient); private auth = inject(Auth); private base='http://127.0.0.1:8000';
+  private http = inject(HttpClient); private auth = inject(Auth); private base='';
   getAlerts():Observable<Alert[]>{return this.http.get<Alert[]>(`${this.base}/alerts/`,{headers:this.auth.authHeaders()})}
   createAlert(payload:CreateAlertPayload):Observable<Alert>{
     console.log('Creating alert with payload: %o', payload);
