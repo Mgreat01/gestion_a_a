@@ -77,6 +77,46 @@ h3 {
   box-shadow: 0 12px 32px rgba(23, 32, 28, 0.18);
 }
 
+:host ::ng-deep .user-location-icon {
+  position: relative;
+}
+
+:host ::ng-deep .user-location-icon__dot,
+:host ::ng-deep .user-location-icon__pulse {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+}
+
+:host ::ng-deep .user-location-icon__dot {
+  width: 14px;
+  height: 14px;
+  border: 3px solid #ffffff;
+  background: #0f766e;
+  box-shadow: 0 6px 18px rgba(15, 118, 110, 0.35);
+}
+
+:host ::ng-deep .user-location-icon__pulse {
+  width: 28px;
+  height: 28px;
+  background: rgba(15, 118, 110, 0.24);
+  animation: user-location-pulse 1.45s ease-out infinite;
+}
+
+@keyframes user-location-pulse {
+  0% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(0.65);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.65);
+  }
+}
+
 @media (max-width: 768px) {
   .map-panel__header {
     padding: 0.9rem 1rem;
