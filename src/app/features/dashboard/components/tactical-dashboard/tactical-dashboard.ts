@@ -1,6 +1,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 import {
   Alert,
@@ -13,6 +14,7 @@ import { AuthMeResponse } from '../../../../models/user';
 import { MapView } from '../map-view/map-view';
 import { DashboardSidebar, SidebarView } from '../dashboard-sidebar/dashboard-sidebar';
 import { Dashboard } from '../../../../core/dashboard';
+import { Auth } from '../../../../core/auth';
 
 @Component({
   selector: 'app-tactical-dashboard',
@@ -34,6 +36,8 @@ export class TacticalDashboard implements OnInit {
   @Output() updateAlert = new EventEmitter<{ alertId: string; payload: UpdateAlertPayload }>();
   private openApiUrl =  '/nominatim/reverse';
   private dashboardService = inject(Dashboard);
+  private authService = inject(Auth);
+  private router = inject(Router);
   coords: { latitude: number; longitude: number } | null = null;
 
   selectedAlert: Alert | null = null;
@@ -242,6 +246,11 @@ type: any;
       .finally(() => {
         this.locating = false;
       });
+  }
+
+  deconnexion(): void {
+    this.authService.removeToken();
+    this.router.navigate(['/login']);
   }
 
 }
