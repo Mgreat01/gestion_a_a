@@ -22,8 +22,7 @@ import { Dashboard } from '../../../../core/dashboard';
 })
 export class TacticalDashboard implements OnInit {
   ngOnInit(): void {
-    this.loadLocalisation();
-    this.reverseGeocode(this.coords?.latitude ?? 0, this.coords?.longitude ?? 0);
+    void this.prepareDraftLocation();
   }
   @Input() alerts: Alert[] = [];
   @Input() currentUser: AuthMeResponse | null = null;
@@ -44,6 +43,7 @@ export class TacticalDashboard implements OnInit {
   statusFilter: 'all' | AlertStatus = 'all';
   search = '';
   showCreateModal = false;
+  locating = false;
 
   draft: CreateAlertPayload = {
     encrypted_content: '',
@@ -93,7 +93,7 @@ type: any;
     return this.visibleAlerts.filter(a =>
       (this.severityFilter === 'all' || a.severity === this.severityFilter) &&
       (this.statusFilter === 'all' || a.status === this.statusFilter) &&
-      (`${a.id} ${a.assigned_to ?? ''} ${a.location ?? ''}`)
+      (`${a.id} ${a.assigned_to ?? ''} ${a.address ?? ''} ${this.locationLabel(a)}`)
         .toLowerCase()
         .includes(this.search.toLowerCase())
     );
@@ -151,29 +151,71 @@ type: any;
     });
   }
 
-  submitCreate(): void {
-    this.createAlert.emit({ ...this.draft });
-    this.showCreateModal = false;
-
-    this.loadLocalisation().then(() => {
-      this.draft = {
-      encrypted_content: '',
-      encrypted_key: '',
-      latitude: this.coords?.latitude,
-      longitude: this.coords?.longitude,
-      severity: 'high'
-    };
-    console.log('Draft alert:', this.draft);
-    });
+  openCreateModal(): void {
+    this.showCreateModal = true;
+    void this.prepareDraftLocation();
   }
 
-  reverseGeocode(lat: number, lon: number): Promise<any> {
+  async submitCreate(): Promise<void> {
+    const coords = await this.prepareDraftLocation();
+
+    if (!coords) {
+      return;
+    }
+
+    const payload: CreateAlertPayload = {
+      ...this.draft,
+      latitude: coords.latitude,
+      longitude: coords.longitude
+    };
+
+    this.createAlert.emit(payload);
+    this.showCreateModal = false;
+
+    this.draft = {
+      encrypted_content: '',
+      encrypted_key: '',
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+      severity: 'high'
+    };
+  }
+
+  locationLabel(alert: Alert): string {
+    if (alert.address != null && alert.address.trim() !== '') {
+      return alert.address;
+    }
+
+    const latitude = alert.location?.coordinates?.[1] ?? alert.latitude;
+    const longitude = alert.location?.coordinates?.[0] ?? alert.longitude;
+
+    return `${latitude}, ${longitude}`;
+  }
+
+  private async prepareDraftLocation(): Promise<{ latitude: number; longitude: number } | undefined> {
+    const coords = await this.loadLocalisation();
+
+    if (!coords) {
+      return undefined;
+    }
+
+    this.draft = {
+      ...this.draft,
+      latitude: coords.latitude,
+      longitude: coords.longitude
+    };
+
+    void this.reverseGeocode(coords.latitude, coords.longitude);
+
+    return coords;
+  }
+
+  private reverseGeocode(lat: number, lon: number): Promise<any> {
     const url = `${this.openApiUrl}?lat=${lat}&lon=${lon}&format=json`;
     return fetch(url)
       .then(response => response.json())
       .then(data => {
-        console.log(data);
-        return data;
+        return data?.error ? null : data;
       })
       .catch(error => {
         console.error('Error during reverse geocoding:', error);
@@ -182,6 +224,8 @@ type: any;
   }
 
   loadLocalisation(): Promise<{ latitude: number; longitude: number } | undefined> {
+    this.locating = true;
+
     return this.dashboardService.getCurrentPosition()
       .then((pos) => {
         this.coords = {
@@ -194,6 +238,9 @@ type: any;
       .catch((err) => {
         this.error = String(err);
         return undefined;
+      })
+      .finally(() => {
+        this.locating = false;
       });
   }
 

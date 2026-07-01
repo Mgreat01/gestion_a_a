@@ -23,7 +23,7 @@ export interface Alert {
   created_at: string;
   acknowledged_at: string | null;
   resolved_at: string | null;
-  adresse : string | null;
+  address : string | null;
 }
 
 export interface CreateAlertPayload {
