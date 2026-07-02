@@ -8,7 +8,7 @@ import {
   AlertSeverity,
   AlertStatus,
   CreateAlertPayload,
-  UpdateAlertPayload
+  UpdateAlertPayload,
 } from '../../../../models/alert';
 import { AuthMeResponse } from '../../../../models/user';
 import { MapView } from '../map-view/map-view';
@@ -20,7 +20,7 @@ import { Auth } from '../../../../core/services/auth';
   selector: 'app-tactical-dashboard',
   standalone: true,
   imports: [CommonModule, DatePipe, FormsModule, MapView, DashboardSidebar],
-  templateUrl: './tactical-dashboard.html'
+  templateUrl: './tactical-dashboard.html',
 })
 export class TacticalDashboard implements OnInit {
   ngOnInit(): void {
@@ -34,7 +34,6 @@ export class TacticalDashboard implements OnInit {
   @Output() refresh = new EventEmitter<void>();
   @Output() createAlert = new EventEmitter<CreateAlertPayload>();
   @Output() updateAlert = new EventEmitter<{ alertId: string; payload: UpdateAlertPayload }>();
-  private openApiUrl =  '/nominatim/reverse';
   private dashboardService = inject(Dashboard);
   private authService = inject(Auth);
   private router = inject(Router);
@@ -54,9 +53,9 @@ export class TacticalDashboard implements OnInit {
     encrypted_key: '',
     latitude: 0,
     longitude: 0,
-    severity: 'high'
+    severity: 'high',
   };
-type: any;
+  type: any;
 
   get sidebarItems(): { key: SidebarView; label: string }[] {
     return this.isAdmin
@@ -66,14 +65,14 @@ type: any;
           { key: 'map', label: 'Carte' },
           { key: 'analytics', label: 'Analytics' },
           { key: 'profile', label: 'Profil' },
-          { key: 'settings', label: 'Paramètres' }
+          { key: 'settings', label: 'Paramètres' },
         ]
       : [
           { key: 'dashboard', label: 'Accueil' },
           { key: 'alerts', label: 'Mes alertes' },
           { key: 'map', label: 'Carte' },
           { key: 'profile', label: 'Profil' },
-          { key: 'settings', label: 'Paramètres' }
+          { key: 'settings', label: 'Paramètres' },
         ];
   }
 
@@ -86,7 +85,7 @@ type: any;
   }
 
   get myAlerts(): Alert[] {
-    return this.alerts.filter(a => a.user_id === this.currentUser?.id);
+    return this.alerts.filter((a) => a.user_id === this.currentUser?.id);
   }
 
   get visibleAlerts(): Alert[] {
@@ -94,37 +93,38 @@ type: any;
   }
 
   get filteredAlerts(): Alert[] {
-    return this.visibleAlerts.filter(a =>
-      (this.severityFilter === 'all' || a.severity === this.severityFilter) &&
-      (this.statusFilter === 'all' || a.status === this.statusFilter) &&
-      (`${a.id} ${a.assigned_to ?? ''} ${a.address ?? ''} ${this.locationLabel(a)}`)
-        .toLowerCase()
-        .includes(this.search.toLowerCase())
+    return this.visibleAlerts.filter(
+      (a) =>
+        (this.severityFilter === 'all' || a.severity === this.severityFilter) &&
+        (this.statusFilter === 'all' || a.status === this.statusFilter) &&
+        `${a.id} ${a.assigned_to ?? ''} ${a.address ?? ''} ${this.locationLabel(a)}`
+          .toLowerCase()
+          .includes(this.search.toLowerCase()),
     );
   }
 
   get activeAlerts(): number {
-    return this.visibleAlerts.filter(a => a.status === 'active').length;
+    return this.visibleAlerts.filter((a) => a.status === 'active').length;
   }
 
   get criticalAlerts(): number {
-    return this.visibleAlerts.filter(a => a.severity === 'high').length;
+    return this.visibleAlerts.filter((a) => a.severity === 'high').length;
   }
 
   get acknowledgedAlerts(): number {
-    return this.visibleAlerts.filter(a => a.status === 'acknowledged').length;
+    return this.visibleAlerts.filter((a) => a.status === 'acknowledged').length;
   }
 
   get resolvedAlerts(): number {
-    return this.visibleAlerts.filter(a => a.status === 'resolved').length;
+    return this.visibleAlerts.filter((a) => a.status === 'resolved').length;
   }
 
   get mediumAlerts(): number {
-    return this.visibleAlerts.filter(a => a.severity === 'medium').length;
+    return this.visibleAlerts.filter((a) => a.severity === 'medium').length;
   }
 
   get lowAlerts(): number {
-    return this.visibleAlerts.filter(a => a.severity === 'low').length;
+    return this.visibleAlerts.filter((a) => a.severity === 'low').length;
   }
 
   severityClass(severity: AlertSeverity): string {
@@ -151,7 +151,7 @@ type: any;
   markStatus(alert: Alert, status: AlertStatus): void {
     this.updateAlert.emit({
       alertId: alert.id,
-      payload: { status }
+      payload: { status },
     });
   }
 
@@ -170,7 +170,7 @@ type: any;
     const payload: CreateAlertPayload = {
       ...this.draft,
       latitude: coords.latitude,
-      longitude: coords.longitude
+      longitude: coords.longitude,
     };
 
     this.createAlert.emit(payload);
@@ -181,7 +181,7 @@ type: any;
       encrypted_key: '',
       latitude: coords.latitude,
       longitude: coords.longitude,
-      severity: 'high'
+      severity: 'high',
     };
   }
 
@@ -196,7 +196,9 @@ type: any;
     return `${latitude}, ${longitude}`;
   }
 
-  private async prepareDraftLocation(): Promise<{ latitude: number; longitude: number } | undefined> {
+  private async prepareDraftLocation(): Promise<
+    { latitude: number; longitude: number } | undefined
+  > {
     const coords = await this.loadLocalisation();
 
     if (!coords) {
@@ -206,35 +208,21 @@ type: any;
     this.draft = {
       ...this.draft,
       latitude: coords.latitude,
-      longitude: coords.longitude
+      longitude: coords.longitude,
     };
 
-    void this.reverseGeocode(coords.latitude, coords.longitude);
-
     return coords;
-  }
-
-  private reverseGeocode(lat: number, lon: number): Promise<any> {
-    const url = `${this.openApiUrl}?lat=${lat}&lon=${lon}&format=json`;
-    return fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        return data?.error ? null : data;
-      })
-      .catch(error => {
-        console.error('Error during reverse geocoding:', error);
-        return null;
-      });
   }
 
   loadLocalisation(): Promise<{ latitude: number; longitude: number } | undefined> {
     this.locating = true;
 
-    return this.dashboardService.getCurrentPosition()
+    return this.dashboardService
+      .getCurrentPosition()
       .then((pos) => {
         this.coords = {
           latitude: pos.latitude,
-          longitude: pos.longitude
+          longitude: pos.longitude,
         };
         console.log('Current position:', this.coords);
         return this.coords;
@@ -252,5 +240,4 @@ type: any;
     this.authService.removeToken();
     this.router.navigate(['/login']);
   }
-
 }
