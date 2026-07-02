@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Alert, CreateAlertPayload, CreateLocationPayload, UpdateAlertPayload } from '../models/alert';
+import { Alert, CreateAlertPayload, CreateLocationPayload, UpdateAlertPayload } from '../../models/alert';
 import { Auth } from './auth';
 @Injectable({ providedIn: 'root' })
 export class Dashboard {

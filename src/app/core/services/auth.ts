@@ -2,7 +2,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { AuthMeResponse, User } from '../models/user';
+import { AuthMeResponse, User } from '../../models/user';
 
 @Injectable({ providedIn: 'root' })
 export class Auth {
