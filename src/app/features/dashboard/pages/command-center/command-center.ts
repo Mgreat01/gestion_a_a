@@ -10,8 +10,8 @@ import {
   UpdateAlertPayload
 } from '../../../../models/alert';
 
-import { Dashboard } from '../../../../core/dashboard';
-import { Auth } from '../../../../core/auth';
+import { Dashboard } from '../../../../core/services/dashboard';
+import { Auth } from '../../../../core/services/auth';
 import { AuthMeResponse } from '../../../../models/user';
 
 @Component({

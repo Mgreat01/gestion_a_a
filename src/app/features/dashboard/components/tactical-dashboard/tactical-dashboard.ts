@@ -13,8 +13,8 @@ import {
 import { AuthMeResponse } from '../../../../models/user';
 import { MapView } from '../map-view/map-view';
 import { DashboardSidebar, SidebarView } from '../dashboard-sidebar/dashboard-sidebar';
-import { Dashboard } from '../../../../core/dashboard';
-import { Auth } from '../../../../core/auth';
+import { Dashboard } from '../../../../core/services/dashboard';
+import { Auth } from '../../../../core/services/auth';
 
 @Component({
   selector: 'app-tactical-dashboard',
