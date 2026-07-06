@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import {
+  AdminAlertNotification,
   Alert,
   AlertSeverity,
   AlertStatus,
@@ -30,10 +31,12 @@ export class TacticalDashboard implements OnInit {
   @Input() currentUser: AuthMeResponse | null = null;
   @Input() loading = false;
   @Input() error = '';
+  @Input() adminNotifications: AdminAlertNotification[] = [];
 
   @Output() refresh = new EventEmitter<void>();
   @Output() createAlert = new EventEmitter<CreateAlertPayload>();
   @Output() updateAlert = new EventEmitter<{ alertId: string; payload: UpdateAlertPayload }>();
+  @Output() clearNotifications = new EventEmitter<void>();
   private dashboardService = inject(Dashboard);
   private authService = inject(Auth);
   private router = inject(Router);
@@ -138,6 +141,20 @@ export class TacticalDashboard implements OnInit {
       default:
         return 'bg-slate-50 text-slate-700 border border-slate-200';
     }
+  }
+
+  notificationLabel(notification: AdminAlertNotification): string {
+    if (typeof notification.message === 'string' && notification.message.trim() !== '') {
+      return notification.message;
+    }
+
+    const alertId = notification.alert_id ?? notification.id;
+
+    if (typeof alertId === 'string' && alertId.trim() !== '') {
+      return `Nouvelle alerte #${alertId.slice(0, 8)}`;
+    }
+
+    return 'Nouvelle notification admin';
   }
 
   openAlert(alert: Alert): void {

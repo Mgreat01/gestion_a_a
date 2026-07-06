@@ -1,4 +1,3 @@
-
 export type AlertSeverity = 'low' | 'medium' | 'high';
 export type AlertStatus = 'active' | 'acknowledged' | 'resolved';
 
@@ -16,14 +15,14 @@ export interface Alert {
   encrypted_key: string;
   latitude: number;
   longitude: number;
-  location:  Location;
+  location: Location;
   severity: AlertSeverity;
   status: AlertStatus;
   assigned_to: string | null;
   created_at: string;
   acknowledged_at: string | null;
   resolved_at: string | null;
-  address : string | null;
+  address: string | null;
 }
 
 export interface CreateAlertPayload {
@@ -47,8 +46,17 @@ export interface CreateLocationPayload {
   accuracy: number;
 }
 
+export interface AdminAlertNotification {
+  alert_id?: string;
+  id?: string;
+  message?: string;
+  severity?: string;
+  status?: string;
+  created_at?: string;
+  [key: string]: unknown;
+}
 
 export interface Location {
   type: string;
-  coordinates: number[]
+  coordinates: number[];
 }
