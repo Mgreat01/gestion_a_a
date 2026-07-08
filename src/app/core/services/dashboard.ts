@@ -13,5 +13,4 @@ export class Dashboard {
   updateAlert(alertId:string,payload:UpdateAlertPayload):Observable<any>{return this.http.put(`${this.base}/alerts/${alertId}`,payload,{headers:this.auth.authHeaders()})}
   createLocation(payload:CreateLocationPayload):Observable<any>{return this.http.post(`${this.base}/locations/`,payload,{headers:this.auth.authHeaders()})}
   getLocations(alertId:string):Observable<any>{return this.http.get(`${this.base}/locations/${alertId}`,{headers:this.auth.authHeaders()})}
-  getCurrentPosition():Promise<{latitude:number;longitude:number;accuracy:number}>{return new Promise((resolve,reject)=>{if(!navigator.geolocation)return reject(new Error('unsupported'));navigator.geolocation.getCurrentPosition(p=>resolve({latitude:p.coords.latitude,longitude:p.coords.longitude,accuracy:p.coords.accuracy??0}),reject,{enableHighAccuracy:true,timeout:12000,maximumAge:0})})}
 }

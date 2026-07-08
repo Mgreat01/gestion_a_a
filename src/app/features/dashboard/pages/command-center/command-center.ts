@@ -1,4 +1,4 @@
-import { Component, NgZone, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { EMPTY, Subscription, catchError, switchMap, timer } from 'rxjs';
 import { CommonModule } from '@angular/common';
 
@@ -32,14 +32,14 @@ export class CommandCenter implements OnInit, OnDestroy {
   private readonly adminReconnectDelayMs = 3000;
   private isDestroyed = false;
 
-  alerts: Alert[] = [];
-  adminNotifications: AdminAlertNotification[] = [];
+  alerts = signal<Alert[]>([]);
+  adminNotifications = signal<AdminAlertNotification[]>([]);
 
-  currentUser: AuthMeResponse | null = this.auth.getMeCache();
+  currentUser = signal<AuthMeResponse | null>(this.auth.getMeCache());
 
-  loading = true;
+  loading = signal(true);
 
-  error = '';
+  error = signal('');
 
   ngOnInit(): void {
     this.isDestroyed = false;
@@ -59,12 +59,12 @@ export class CommandCenter implements OnInit, OnDestroy {
     try {
       const me = await this.auth.me();
 
-      this.currentUser = me;
+      this.currentUser.set(me);
 
       this.auth.setMe(me);
       userLoaded = true;
     } catch {
-      this.currentUser = this.auth.getMeCache();
+      this.currentUser.set(this.auth.getMeCache());
     } finally {
       if (userLoaded) {
         this.connectAdminNotifications();
@@ -77,15 +77,15 @@ export class CommandCenter implements OnInit, OnDestroy {
   private loadAlerts(): void {
     this.alertsSubscription?.unsubscribe();
 
-    this.loading = true;
+    this.loading.set(true);
 
     this.alertsSubscription = timer(0, 10000)
       .pipe(
         switchMap(() =>
           this.dashboard.getAlerts().pipe(
             catchError((err) => {
-              this.error = err?.error?.detail ?? 'Erreur de chargement des alertes';
-              this.loading = false;
+              this.error.set(err?.error?.detail ?? 'Erreur de chargement des alertes');
+              this.loading.set(false);
               return EMPTY;
             }),
           ),
@@ -93,15 +93,15 @@ export class CommandCenter implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (alerts) => {
-          console.log('Utilisateur :', this.currentUser);
+          console.log('Utilisateur :', this.currentUser());
 
           console.log('Alertes reçues :', alerts);
 
-          this.alerts = alerts;
+          this.alerts.set(this.sortAlertsByDate(alerts));
 
-          this.error = '';
+          this.error.set('');
 
-          this.loading = false;
+          this.loading.set(false);
         },
       });
   }
@@ -111,31 +111,31 @@ export class CommandCenter implements OnInit, OnDestroy {
   }
 
   clearAdminNotifications(): void {
-    this.adminNotifications = [];
+    this.adminNotifications.set([]);
   }
 
   private refreshAlerts(showLoading: boolean): void {
     if (showLoading) {
-      this.loading = true;
+      this.loading.set(true);
     }
 
     this.dashboard.getAlerts().subscribe({
       next: (alerts) => {
-        this.alerts = alerts;
+        this.alerts.set(this.sortAlertsByDate(alerts));
 
-        this.error = '';
+        this.error.set('');
 
-        this.loading = false;
+        this.loading.set(false);
       },
 
       error: () => {
-        this.loading = false;
+        this.loading.set(false);
       },
     });
   }
 
   private connectAdminNotifications(): void {
-    if (this.currentUser?.role !== 'admin') {
+    if (this.currentUser()?.role !== 'admin') {
       this.disconnectAdminNotifications();
       return;
     }
@@ -199,7 +199,7 @@ export class CommandCenter implements OnInit, OnDestroy {
   }
 
   private scheduleAdminNotificationsReconnect(): void {
-    if (this.isDestroyed || this.currentUser?.role !== 'admin' || this.adminNotificationsSocket) {
+    if (this.isDestroyed || this.currentUser()?.role !== 'admin' || this.adminNotificationsSocket) {
       return;
     }
 
@@ -211,7 +211,7 @@ export class CommandCenter implements OnInit, OnDestroy {
     );
 
     this.adminReconnectSubscription = timer(this.adminReconnectDelayMs).subscribe(() => {
-      if (!this.isDestroyed && this.currentUser?.role === 'admin') {
+      if (!this.isDestroyed && this.currentUser()?.role === 'admin') {
         this.connectAdminNotifications();
       }
     });
@@ -221,17 +221,35 @@ export class CommandCenter implements OnInit, OnDestroy {
     const parsed = this.parseAdminNotificationMessage(data);
 
     if (parsed?.type === 'initial_alerts' && Array.isArray(parsed.data)) {
-      this.adminNotifications = this.uniqueLatestNotifications(
-        this.sortNotificationsByDate(parsed.data.map((alert) => this.toAdminNotification(alert))),
+      const alerts = parsed.data
+        .map((alert) => this.toAlert(alert))
+        .filter((alert): alert is Alert => alert !== null);
+
+      if (alerts.length > 0) {
+        this.alerts.set(this.uniqueLatestAlerts(alerts));
+      }
+
+      this.adminNotifications.set(
+        this.uniqueLatestNotifications(
+          this.sortNotificationsByDate(parsed.data.map((alert) => this.toAdminNotification(alert))),
+        ),
       );
       return;
     }
 
     if (parsed?.type === 'new_alert' && parsed.data != null) {
-      this.adminNotifications = this.uniqueLatestNotifications([
-        this.toAdminNotification(parsed.data),
-        ...this.adminNotifications,
-      ]);
+      const alert = this.toAlert(parsed.data);
+
+      if (alert) {
+        this.alerts.update((alerts) => this.uniqueLatestAlerts([alert, ...alerts]));
+      }
+
+      this.adminNotifications.set(
+        this.uniqueLatestNotifications([
+          this.toAdminNotification(parsed.data),
+          ...this.adminNotifications(),
+        ]),
+      );
       return;
     }
 
@@ -261,6 +279,36 @@ export class CommandCenter implements OnInit, OnDestroy {
       ...notification,
       alert_id: notification.alert_id ?? notification.id,
     };
+  }
+
+  private toAlert(value: unknown): Alert | null {
+    if (typeof value !== 'object' || value === null || !('id' in value)) {
+      return null;
+    }
+
+    return value as Alert;
+  }
+
+  private uniqueLatestAlerts(alerts: Alert[]): Alert[] {
+    const seen = new Set<string>();
+
+    return this.sortAlertsByDate(alerts).filter((alert) => {
+      if (seen.has(alert.id)) {
+        return false;
+      }
+
+      seen.add(alert.id);
+      return true;
+    });
+  }
+
+  private sortAlertsByDate(alerts: Alert[]): Alert[] {
+    return [...alerts].sort((a, b) => this.alertTime(b) - this.alertTime(a));
+  }
+
+  private alertTime(alert: Alert): number {
+    const time = Date.parse(alert.created_at);
+    return Number.isNaN(time) ? 0 : time;
   }
 
   private uniqueLatestNotifications(
@@ -305,7 +353,10 @@ export class CommandCenter implements OnInit, OnDestroy {
 
   onCreateAlert(payload: CreateAlertPayload): void {
     this.dashboard.createAlert(payload).subscribe({
-      next: () => this.onRefresh(),
+      next: (alert) => {
+        this.alerts.update((alerts) => this.uniqueLatestAlerts([alert, ...alerts]));
+        this.refreshAlerts(false);
+      },
     });
   }
 
@@ -321,7 +372,17 @@ export class CommandCenter implements OnInit, OnDestroy {
         event.payload,
       )
       .subscribe({
-        next: () => this.onRefresh(),
+        next: (updatedAlert) => {
+          const alert = this.toAlert(updatedAlert);
+
+          if (alert) {
+            this.alerts.update((alerts) =>
+              this.uniqueLatestAlerts([alert, ...alerts.filter((item) => item.id !== alert.id)]),
+            );
+          }
+
+          this.refreshAlerts(false);
+        },
       });
   }
 }
