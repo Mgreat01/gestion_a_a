@@ -8,14 +8,15 @@ import {
   Alert,
   AlertSeverity,
   AlertStatus,
-  CreateAlertPayload,
+  CreateEncryptedAlertRequest,
+  DashboardStatistics,
   UpdateAlertPayload,
 } from '../../../../models/alert';
 import { AuthMeResponse } from '../../../../models/user';
 import { MapView } from '../map-view/map-view';
 import { DashboardSidebar, SidebarView } from '../dashboard-sidebar/dashboard-sidebar';
-import { Dashboard } from '../../../../core/services/dashboard';
 import { Auth } from '../../../../core/services/auth';
+import { LocationService } from '../../../../core/services/location.service';
 
 @Component({
   selector: 'app-tactical-dashboard',
@@ -32,12 +33,13 @@ export class TacticalDashboard implements OnInit {
   @Input() loading = false;
   @Input() error = '';
   @Input() adminNotifications: AdminAlertNotification[] = [];
+  @Input() statistics: DashboardStatistics | null = null;
 
   @Output() refresh = new EventEmitter<void>();
-  @Output() createAlert = new EventEmitter<CreateAlertPayload>();
+  @Output() createAlert = new EventEmitter<CreateEncryptedAlertRequest>();
   @Output() updateAlert = new EventEmitter<{ alertId: string; payload: UpdateAlertPayload }>();
   @Output() clearNotifications = new EventEmitter<void>();
-  private dashboardService = inject(Dashboard);
+  private locationService = inject(LocationService);
   private authService = inject(Auth);
   private router = inject(Router);
   coords: { latitude: number; longitude: number } | null = null;
@@ -51,11 +53,8 @@ export class TacticalDashboard implements OnInit {
   showCreateModal = false;
   locating = false;
 
-  draft: CreateAlertPayload = {
-    encrypted_content: '',
-    encrypted_key: '',
-    latitude: 0,
-    longitude: 0,
+  draft: CreateEncryptedAlertRequest = {
+    message: '',
     severity: 'high',
   };
   type: any;
@@ -184,20 +183,21 @@ export class TacticalDashboard implements OnInit {
       return;
     }
 
-    const payload: CreateAlertPayload = {
+    const payload: CreateEncryptedAlertRequest = {
       ...this.draft,
-      latitude: coords.latitude,
-      longitude: coords.longitude,
+      message: this.draft.message.trim(),
     };
+
+    if (!payload.message) {
+      this.error = 'Le message est requis.';
+      return;
+    }
 
     this.createAlert.emit(payload);
     this.showCreateModal = false;
 
     this.draft = {
-      encrypted_content: '',
-      encrypted_key: '',
-      latitude: coords.latitude,
-      longitude: coords.longitude,
+      message: '',
       severity: 'high',
     };
   }
@@ -222,19 +222,13 @@ export class TacticalDashboard implements OnInit {
       return undefined;
     }
 
-    this.draft = {
-      ...this.draft,
-      latitude: coords.latitude,
-      longitude: coords.longitude,
-    };
-
     return coords;
   }
 
   loadLocalisation(): Promise<{ latitude: number; longitude: number } | undefined> {
     this.locating = true;
 
-    return this.dashboardService
+    return this.locationService
       .getCurrentPosition()
       .then((pos) => {
         this.coords = {

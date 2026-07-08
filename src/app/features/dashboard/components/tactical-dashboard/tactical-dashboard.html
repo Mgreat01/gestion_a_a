@@ -13,7 +13,7 @@
       >
         <div class="flex flex-wrap items-center justify-between gap-4 px-4 py-4 lg:px-8">
           <div>
-            <p class="text-xs font-bold uppercase text-[#65736d]">Emergency response platform</p>
+            <p class="text-xs font-bold uppercase text-[#65736d]">gestionAlert platform</p>
             <h1 class="mt-1 text-2xl font-bold text-[#17201c]">
               {{ isAdmin ? 'Centre des opérations' : 'Espace alerte' }}
             </h1>
@@ -385,9 +385,9 @@
         <div>
           <p class="text-xs font-bold uppercase text-[#65736d]">Nouvelle alerte</p>
           <h3 class="mt-1 text-2xl font-bold">Créer un signalement</h3>
-          <p class="mt-2 text-sm text-[#65736d]">
+          <!-- <p class="mt-2 text-sm text-[#65736d]">
             La position actuelle du navigateur sera récupérée automatiquement.
-          </p>
+          </p> -->
         </div>
         <button
           type="button"
@@ -400,19 +400,21 @@
 
       <div class="mt-6 grid gap-5">
         <div>
-          <label class="mb-2 block text-sm font-semibold text-[#24302b]">Contenu chiffré</label>
+          <label class="mb-2 block text-sm font-semibold text-[#24302b]">Message</label>
           <textarea
-            [(ngModel)]="draft.encrypted_content"
+            [(ngModel)]="draft.message"
+            placeholder="Decrivez la situation. Ce message sera chiffre avant l'envoi."
             rows="5"
             class="w-full rounded-lg border border-[#cfdcd6] bg-white px-4 py-3 text-[#17201c] outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#b9d9d4]"
           ></textarea>
         </div>
         <div>
-          <label class="mb-2 block text-sm font-semibold text-[#24302b]">Clé chiffrée</label>
+          <!-- <label class="mb-2 block text-sm font-semibold text-[#24302b]">Cle chiffree</label>
           <input
-            [(ngModel)]="draft.encrypted_key"
+            [ngModel]="'Generee automatiquement'"
+            disabled
             class="w-full rounded-lg border border-[#cfdcd6] bg-white px-4 py-3 text-[#17201c] outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#b9d9d4]"
-          />
+          /> -->
         </div>
         <div>
           <label class="mb-3 block text-sm font-semibold text-[#24302b]">Sévérité</label>
