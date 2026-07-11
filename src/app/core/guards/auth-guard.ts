@@ -19,7 +19,9 @@ export const authGuard: CanActivateFn = (route) => {
       auth.setMe(me);
 
       if (allowedRoles?.length && (!me.role || !allowedRoles.includes(me.role))) {
-        return router.createUrlTree([me.role === 'admin' ? '/admin/dashboard' : '/user/dashboard']);
+        const role = me.role ?? 'user';
+        const fallback = role === 'admin' ? '/admin/dashboard' : role === 'rescuer' ? '/rescuer/dashboard' : '/user/dashboard';
+        return router.createUrlTree([fallback]);
       }
 
       return true;

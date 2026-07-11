@@ -34,11 +34,16 @@ export class Login {
     };
 
     this.auth.login(user)
-      .then(response => {
+      .then(async response => {
         this.message = 'Connexion réussie ! Redirection...';
         this.error = '';
         this.auth.setToken(response.access_token);
-        setTimeout(() => this.router.navigate(['/dashboard']), 1000);
+        const me = await this.auth.me();
+        this.auth.setMe(me);
+        const redirectPath = me.role === 'admin' ? '/admin/dashboard' :
+                             me.role === 'rescuer' ? '/rescuer/dashboard' :
+                             '/user/dashboard';
+        setTimeout(() => this.router.navigate([redirectPath]), 1000);
       })
       .catch(err => {
         this.error = err.error?.message || 'Email ou mot de passe incorrect';

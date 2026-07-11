@@ -8,7 +8,10 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
+  OnInit,
   Output,
+  SimpleChanges,
   inject
 } from '@angular/core';
 
@@ -58,6 +61,16 @@ import {
 } from '../../../../core/services/location.service';
 
 
+import {
+  UserManagementService
+} from '../../../../core/services/user-management.service';
+
+
+import {
+  User
+} from '../../../../models/user';
+
+
 
 @Component({
 
@@ -86,7 +99,7 @@ import {
 })
 
 
-export class TacticalDashboard {
+export class TacticalDashboard implements OnInit, OnChanges {
 
 
 
@@ -95,6 +108,8 @@ private readonly authService = inject(Auth);
 private readonly router = inject(Router);
 
 private readonly locationService = inject(LocationService);
+
+private readonly userManagementService = inject(UserManagementService);
 
 
 
@@ -163,6 +178,46 @@ selectedAlert:Alert|null=null;
 
 
 activeView:SidebarView='dashboard';
+
+
+users:User[]=[];
+
+
+ngOnInit(){
+
+if(this.isAdmin){
+
+this.loadUsers();
+
+}
+
+}
+
+
+ngOnChanges(changes:SimpleChanges){
+
+if(changes['currentUser']&&changes['currentUser'].currentValue){
+
+if(this.isAdmin){
+
+this.loadUsers();
+
+}
+
+}
+
+}
+
+
+loadUsers(){
+
+this.userManagementService.getUsersByRole('user').subscribe(data=>{
+
+this.users=data;
+
+});
+
+}
 
 
 
@@ -776,6 +831,16 @@ this.router.navigate(['/login']);
 
 }
 
+
+toggleUser(user:User){
+
+this.userManagementService.updateUserStatus(user.id!,!user.is_active).subscribe(()=>{
+
+user.is_active=!user.is_active;
+
+});
+
+}
 
 
 }

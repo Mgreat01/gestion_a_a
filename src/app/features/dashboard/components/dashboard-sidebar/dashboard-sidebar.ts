@@ -6,6 +6,7 @@ export type SidebarView =
   | 'alerts'
   | 'map'
   | 'analytics'
+  | 'users'
   | 'profile'
   | 'settings';
 
@@ -23,7 +24,7 @@ type SidebarItem = {
   templateUrl: './dashboard-sidebar.html'
 })
 export class DashboardSidebar {
-  @Input() role: 'admin' | 'user' = 'user';
+  @Input() role: 'admin' | 'user' | 'rescuer' = 'user';
   @Input() activeView: SidebarView = 'dashboard';
 
   @Output() viewChange = new EventEmitter<SidebarView>();
@@ -35,10 +36,20 @@ export class DashboardSidebar {
           { key: 'alerts', label: 'Alertes', icon: 'notification_important', hint: 'Gestion des incidents' },
           { key: 'map', label: 'Carte live', icon: 'map', hint: 'Vue tactique' },
           { key: 'analytics', label: 'Analytics', icon: 'monitoring', hint: 'Statistiques' },
+          { key: 'users', label: 'Utilisateurs', icon: 'group', hint: 'Gestion des comptes' },
           { key: 'profile', label: 'Profil', icon: 'person', hint: 'Compte admin' },
           { key: 'settings', label: 'Paramètres', icon: 'settings', hint: 'Préférences' }
         ]
-      : [
+      : this.role === 'rescuer'
+        ? [
+            { key: 'dashboard', label: 'Ops', icon: 'medical_services', hint: 'Alertes actives' },
+            { key: 'alerts', label: 'Interventions', icon: 'notification_important', hint: 'Mise à jour des alertes' },
+            { key: 'map', label: 'Carte', icon: 'map', hint: 'Position & suivi' },
+            { key: 'analytics', label: 'Analytics', icon: 'monitoring', hint: 'Statistiques' },
+            { key: 'profile', label: 'Profil', icon: 'person', hint: 'Compte rescuer' },
+            { key: 'settings', label: 'Paramètres', icon: 'settings', hint: 'Préférences' }
+          ]
+        : [
           { key: 'dashboard', label: 'Accueil', icon: 'home', hint: 'Résumé personnel' },
           { key: 'alerts', label: 'Mes alertes', icon: 'notifications_active', hint: 'Historique' },
           { key: 'map', label: 'Carte', icon: 'map', hint: 'Position & alertes' },

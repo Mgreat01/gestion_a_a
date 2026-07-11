@@ -1,7 +1,7 @@
 <div class="h-screen overflow-hidden bg-[#f4f7f5] text-[#17201c]">
   <div class="flex h-full">
     <app-dashboard-sidebar
-      [role]="currentUser?.role === 'admin' ? 'admin' : currentUser?.role === 'rescuer' ? 'rescuer' : 'user'"
+      [role]="'rescuer'"
       [activeView]="activeView"
       (viewChange)="activeView = $event"
     >
@@ -15,21 +15,17 @@
           <div>
             <p class="text-xs font-bold uppercase text-[#65736d]">gestionAlert platform</p>
             <h1 class="mt-1 text-2xl font-bold text-[#17201c]">
-              {{ isAdmin ? 'Centre des opérations' : 'Espace alerte' }}
+              Centre de secours
             </h1>
             <p class="mt-1 text-sm text-[#65736d]">
-              {{
-                isAdmin
-                  ? 'Vue globale des alertes et des opérations terrain.'
-                  : 'Vos alertes, votre carte et votre suivi personnel.'
-              }}
+              Mise à jour des alertes et gestion de l'état des interventions.
             </p>
           </div>
 
           <div class="flex flex-wrap items-center gap-3">
             <button
               type="button"
-              (click)="deconnexion()"
+              (click)="logout()"
               class="rounded-lg border border-[#cfdcd6] bg-white px-4 py-2.5 text-sm font-semibold text-[#24302b] shadow-sm transition hover:border-[#9fb8af] hover:bg-[#f8fafc]"
               aria-label="Se déconnecter"
             >
@@ -37,18 +33,10 @@
             </button>
             <button
               type="button"
-              (click)="refresh.emit()"
+              (click)="refreshAlerts()"
               class="rounded-lg border border-[#cfdcd6] bg-white px-4 py-2.5 text-sm font-semibold text-[#24302b] shadow-sm transition hover:border-[#9fb8af] hover:bg-[#f8fafc]"
             >
               Actualiser
-            </button>
-            <button
-              *ngIf="isUser"
-              type="button"
-              (click)="openCreateModal()"
-              class="rounded-lg bg-[#0f766e] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#115e59]"
-            >
-              Nouvelle alerte
             </button>
           </div>
         </div>
@@ -71,60 +59,22 @@
       </header>
 
       <main class="flex-1 overflow-y-auto space-y-6 px-4 py-6 lg:px-8">
-        <section
-          *ngIf="isAdmin && adminNotifications.length > 0"
-          class="rounded-lg border border-red-100 bg-white p-5 shadow-sm"
-        >
-          <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p class="text-xs font-bold uppercase text-red-700">Notifications admin</p>
-              <h3 class="mt-1 text-lg font-bold text-[#17201c]">Alertes en temps réel</h3>
-            </div>
-            <button
-              type="button"
-              (click)="clearNotifications.emit()"
-              class="rounded-lg border border-[#cfdcd6] px-3 py-2 text-sm font-semibold text-[#24302b] hover:bg-[#f8fafc]"
-            >
-              Effacer
-            </button>
-          </div>
-
-          <div class="space-y-2">
-            <div
-              *ngFor="let notification of adminNotifications"
-              class="w-full rounded-lg border border-red-100 bg-red-50 px-4 py-3"
-            >
-              <div class="flex flex-wrap items-center justify-between gap-3">
-                <p class="font-semibold text-red-900">{{ notificationLabel(notification) }}</p>
-                <span
-                  *ngIf="notification.severity"
-                  class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-red-800"
-                  >{{ notification.severity }}</span
-                >
-              </div>
-              <p *ngIf="notification.created_at" class="mt-1 text-xs text-red-700">
-                {{ notification.created_at | date: 'short' }}
-              </p>
-            </div>
-          </div>
-        </section>
-
         <section *ngIf="activeView === 'dashboard'" class="space-y-6">
           <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <div class="rounded-lg border border-[#d9e4df] bg-white p-5 shadow-sm">
               <p class="text-sm font-medium text-[#65736d]">Alertes actives</p>
-              <p class="mt-3 text-4xl font-bold text-[#17201c]">{{ activeAlerts }}</p>
+              <p class="mt-3 text-4xl font-bold text-[#17201c]">{{ activeAlerts.length }}</p>
             </div>
             <div class="rounded-lg border border-red-100 bg-white p-5 shadow-sm">
               <p class="text-sm font-medium text-red-700">Critiques</p>
               <p class="mt-3 text-4xl font-bold text-red-700">{{ criticalAlerts }}</p>
             </div>
             <div class="rounded-lg border border-amber-100 bg-white p-5 shadow-sm">
-              <p class="text-sm font-medium text-amber-700">Acknowledged</p>
+              <p class="text-sm font-medium text-amber-700">En cours</p>
               <p class="mt-3 text-4xl font-bold text-amber-700">{{ acknowledgedAlerts }}</p>
             </div>
             <div class="rounded-lg border border-emerald-100 bg-white p-5 shadow-sm">
-              <p class="text-sm font-medium text-emerald-700">Resolved</p>
+              <p class="text-sm font-medium text-emerald-700">Résolues</p>
               <p class="mt-3 text-4xl font-bold text-emerald-700">{{ resolvedAlerts }}</p>
             </div>
           </div>
@@ -133,45 +83,57 @@
             <section class="rounded-lg border border-[#d9e4df] bg-white p-5 shadow-sm">
               <div class="mb-4 flex items-center justify-between gap-3">
                 <div>
-                  <p class="text-xs font-bold uppercase text-[#65736d]">Queue</p>
+                  <p class="text-xs font-bold uppercase text-[#65736d]">Interventions</p>
                   <h3 class="mt-1 text-lg font-bold text-[#17201c]">
-                    {{ isAdmin ? 'Alertes récentes' : 'Mes dernières alertes' }}
+                    Alertes à traiter
                   </h3>
                 </div>
                 <span
                   class="rounded-full border border-[#d9e4df] bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#65736d]"
-                  >{{ filteredAlerts.length }} alertes</span
+                  >{{ activeAlerts.length }} alertes</span
                 >
               </div>
 
               <div class="max-h-[560px] space-y-3 overflow-auto pr-1">
-                <button
-                  *ngFor="let a of filteredAlerts.slice(0, 8)"
-                  type="button"
-                  (click)="openAlert(a)"
-                  class="w-full rounded-lg border p-4 text-left transition hover:border-[#9fb8af] hover:bg-[#f8fafc]"
+                <div
+                  *ngFor="let alert of activeAlerts.slice(0, 8)"
+                  class="w-full rounded-lg border p-4 transition hover:border-[#9fb8af] hover:bg-[#f8fafc]"
                   [ngClass]="
-                    a.id === selectedAlert?.id
+                    alert.id === selectedAlert?.id
                       ? 'border-[#0f766e] bg-[#e8f5f3]'
                       : 'border-[#d9e4df] bg-white'
                   "
                 >
                   <div class="flex items-start justify-between gap-3">
                     <div>
-                      <p class="font-semibold text-[#17201c]">Alerte #{{ a.id.slice(0, 8) }}</p>
-                      <p class="mt-1 text-xs text-[#65736d]">{{ locationLabel(a) }}</p>
+                      <p class="font-semibold text-[#17201c]">Alerte #{{ alert.id.slice(0, 8) }}</p>
+                      <p class="mt-1 text-xs text-[#65736d]">{{ locationLabel(alert) }}</p>
                     </div>
                     <span
                       class="rounded-full px-3 py-1 text-xs font-semibold"
-                      [ngClass]="severityClass(a.severity)"
-                      >{{ a.severity }}</span
+                      [ngClass]="severityClass(alert.severity)"
+                      >{{ alert.severity }}</span
                     >
                   </div>
                   <div class="mt-3 flex items-center justify-between text-xs text-[#65736d]">
-                    <span>{{ a.status }}</span>
-                    <span>{{ a.created_at | date: 'short' }}</span>
+                    <span>{{ alert.status }}</span>
+                    <span>{{ alert.created_at | date: 'short' }}</span>
                   </div>
-                </button>
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    <select [(ngModel)]="alertStatusDraft[alert.id]" class="rounded-lg border border-[#cfdcd6] bg-white px-3 py-2 text-sm">
+                      <option value="active">Active</option>
+                      <option value="acknowledged">Acknowledged</option>
+                      <option value="resolved">Resolved</option>
+                    </select>
+                    <button
+                      type="button"
+                      (click)="updateAlert(alert.id, alertStatusDraft[alert.id])"
+                      class="rounded-lg bg-[#0f766e] px-3 py-2 text-sm font-semibold text-white"
+                    >
+                      Mettre à jour
+                    </button>
+                  </div>
+                </div>
               </div>
             </section>
           </div>
@@ -234,28 +196,17 @@
                   <td class="px-4 py-3 text-[#65736d]">{{ a.created_at | date: 'short' }}</td>
                   <td class="px-4 py-3">
                     <div class="flex flex-wrap gap-2">
+                      <select [(ngModel)]="alertStatusDraft[a.id]" class="rounded-lg border border-[#cfdcd6] bg-white px-2 py-1 text-sm">
+                        <option value="active">Active</option>
+                        <option value="acknowledged">Acknowledged</option>
+                        <option value="resolved">Resolved</option>
+                      </select>
                       <button
                         type="button"
-                        (click)="openAlert(a)"
-                        class="rounded-lg border border-[#cfdcd6] px-3 py-1.5 font-semibold text-[#24302b] hover:bg-[#f8fafc]"
+                        (click)="updateAlert(a.id, alertStatusDraft[a.id])"
+                        class="rounded-lg bg-[#0f766e] px-2 py-1 text-sm font-semibold text-white"
                       >
-                        Voir
-                      </button>
-                      <button
-                        *ngIf="isAdmin"
-                        type="button"
-                        (click)="markStatus(a, 'acknowledged')"
-                        class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 font-semibold text-amber-800"
-                      >
-                        Acknowledge
-                      </button>
-                      <button
-                        *ngIf="isAdmin"
-                        type="button"
-                        (click)="markStatus(a, 'resolved')"
-                        class="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 font-semibold text-emerald-800"
-                      >
-                        Resolve
+                        Mettre à jour
                       </button>
                     </div>
                   </td>
@@ -268,12 +219,12 @@
         <section *ngIf="activeView === 'map'">
           <app-map-view
             [alerts]="filteredAlerts"
-            [mode]="isAdmin ? 'admin' : 'user'"
+            [mode]="'rescuer'"
             [selectedAlertId]="selectedAlert?.id ?? null"
           ></app-map-view>
         </section>
 
-        <section *ngIf="activeView === 'analytics' && isAdmin" class="grid gap-4 md:grid-cols-3">
+        <section *ngIf="activeView === 'analytics'" class="grid gap-4 md:grid-cols-3">
           <div class="rounded-lg border border-[#d9e4df] bg-white p-5 shadow-sm">
             <p class="text-sm text-[#65736d]">High severity</p>
             <p class="mt-3 text-4xl font-bold text-red-700">{{ criticalAlerts }}</p>
@@ -288,52 +239,6 @@
           </div>
         </section>
 
-        <section *ngIf="activeView === 'users' && isAdmin" class="rounded-lg border border-[#d9e4df] bg-white p-5 shadow-sm">
-          <div class="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <p class="text-xs font-bold uppercase text-[#65736d]">Gestion des utilisateurs</p>
-              <h3 class="mt-1 text-lg font-bold text-[#17201c]">Utilisateurs</h3>
-            </div>
-            <button type="button" (click)="loadUsers()" class="rounded-lg border border-[#cfdcd6] px-3 py-2 text-sm font-semibold">Actualiser</button>
-          </div>
-
-          <div class="overflow-x-auto rounded-lg border border-[#d9e4df]">
-            <table class="min-w-full divide-y divide-[#e4ebe7] text-sm">
-              <thead class="bg-[#f8fafc] text-[#65736d]">
-                <tr>
-                  <th class="px-4 py-3 text-left font-semibold">Utilisateur</th>
-                  <th class="px-4 py-3 text-left font-semibold">Email</th>
-                  <th class="px-4 py-3 text-left font-semibold">Rôle</th>
-                  <th class="px-4 py-3 text-left font-semibold">Statut</th>
-                  <th class="px-4 py-3 text-left font-semibold">Actions</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-[#e4ebe7]">
-                <tr *ngFor="let user of users" class="bg-white hover:bg-[#f8fafc]">
-                  <td class="px-4 py-3 font-semibold text-[#17201c]">{{ user.username || 'N/A' }}</td>
-                  <td class="px-4 py-3 text-[#65736d]">{{ user.email }}</td>
-                  <td class="px-4 py-3 text-[#65736d]">{{ user.role }}</td>
-                  <td class="px-4 py-3">
-                    <span class="rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="user.is_active ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'">
-                      {{ user.is_active ? 'Actif' : 'Inactif' }}
-                    </span>
-                  </td>
-                  <td class="px-4 py-3">
-                    <button
-                      type="button"
-                      (click)="toggleUser(user)"
-                      class="rounded-lg px-3 py-1.5 text-sm font-semibold"
-                      [ngClass]="user.is_active ? 'border-amber-200 bg-amber-50 text-amber-800' : 'border-emerald-200 bg-emerald-50 text-emerald-800'"
-                    >
-                      {{ user.is_active ? 'Désactiver' : 'Activer' }}
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
         <section
           *ngIf="activeView === 'profile'"
           class="rounded-lg border border-[#d9e4df] bg-white p-6 shadow-sm"
@@ -342,11 +247,11 @@
           <div class="mt-5 grid gap-4 md:grid-cols-2">
             <div class="rounded-lg border border-[#d9e4df] bg-[#f8fafc] p-4">
               <p class="text-[#65736d]">Email</p>
-              <p class="mt-1 font-semibold text-[#17201c]">{{ currentUser?.email }}</p>
+              <p class="mt-1 font-semibold text-[#17201c]">{{ currentUser()?.email }}</p>
             </div>
             <div class="rounded-lg border border-[#d9e4df] bg-[#f8fafc] p-4">
               <p class="text-[#65736d]">Rôle</p>
-              <p class="mt-1 font-semibold text-[#17201c]">{{ currentUser?.role }}</p>
+              <p class="mt-1 font-semibold text-[#17201c]">{{ currentUser()?.role }}</p>
             </div>
           </div>
         </section>
@@ -375,7 +280,7 @@
       </div>
       <button
         type="button"
-        (click)="closeDrawer()"
+        (click)="selectedAlert = null"
         class="rounded-lg border border-[#cfdcd6] px-3 py-2 text-sm font-semibold hover:bg-[#f8fafc]"
       >
         Fermer
@@ -401,17 +306,17 @@
           {{ selectedAlert.encrypted_content }}
         </p>
       </div>
-      <div *ngIf="isAdmin" class="grid grid-cols-2 gap-3 pt-2">
+      <div class="grid grid-cols-2 gap-3 pt-2">
         <button
           type="button"
-          (click)="markStatus(selectedAlert, 'acknowledged')"
+          (click)="updateAlert(selectedAlert.id, 'acknowledged')"
           class="rounded-lg bg-amber-600 px-4 py-3 font-semibold text-white"
         >
           Acknowledge
         </button>
         <button
           type="button"
-          (click)="markStatus(selectedAlert, 'resolved')"
+          (click)="updateAlert(selectedAlert.id, 'resolved')"
           class="rounded-lg bg-emerald-700 px-4 py-3 font-semibold text-white"
         >
           Resolve
@@ -419,122 +324,4 @@
       </div>
     </div>
   </aside>
-
-  <div
-    *ngIf="showCreateModal && isUser"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-[#17201c]/55 p-4 backdrop-blur-sm"
-  >
-    <div
-      class="w-full max-w-2xl rounded-lg border border-[#d9e4df] bg-white p-6 text-[#17201c] shadow-2xl"
-    >
-      <div class="flex items-start justify-between gap-4">
-        <div>
-          <p class="text-xs font-bold uppercase text-[#65736d]">Nouvelle alerte</p>
-          <h3 class="mt-1 text-2xl font-bold">Créer un signalement</h3>
-          <!-- <p class="mt-2 text-sm text-[#65736d]">
-            La position actuelle du navigateur sera récupérée automatiquement.
-          </p> -->
-        </div>
-        <button
-          type="button"
-          (click)="showCreateModal = false"
-          class="rounded-lg border border-[#cfdcd6] px-3 py-2 text-sm font-semibold hover:bg-[#f8fafc]"
-        >
-          Fermer
-        </button>
-      </div>
-
-      <div class="mt-6 grid gap-5">
-        <div>
-          <label class="mb-2 block text-sm font-semibold text-[#24302b]">Message</label>
-          <textarea
-            [(ngModel)]="draft.message"
-            placeholder="Decrivez la situation. Ce message sera chiffre avant l'envoi."
-            rows="5"
-            class="w-full rounded-lg border border-[#cfdcd6] bg-white px-4 py-3 text-[#17201c] outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#b9d9d4]"
-          ></textarea>
-        </div>
-        <div>
-          <!-- <label class="mb-2 block text-sm font-semibold text-[#24302b]">Cle chiffree</label>
-          <input
-            [ngModel]="'Generee automatiquement'"
-            disabled
-            class="w-full rounded-lg border border-[#cfdcd6] bg-white px-4 py-3 text-[#17201c] outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#b9d9d4]"
-          /> -->
-        </div>
-        <div>
-          <label class="mb-3 block text-sm font-semibold text-[#24302b]">Sévérité</label>
-          <div class="grid grid-cols-3 gap-3">
-            <button
-              type="button"
-              (click)="draft.severity = 'low'"
-              class="rounded-lg border px-4 py-4 font-semibold"
-              [ngClass]="
-                draft.severity === 'low'
-                  ? 'border-emerald-300 bg-emerald-50 text-emerald-800'
-                  : 'border-[#d9e4df] bg-white text-[#65736d]'
-              "
-            >
-              Low
-            </button>
-            <button
-              type="button"
-              (click)="draft.severity = 'medium'"
-              class="rounded-lg border px-4 py-4 font-semibold"
-              [ngClass]="
-                draft.severity === 'medium'
-                  ? 'border-amber-300 bg-amber-50 text-amber-800'
-                  : 'border-[#d9e4df] bg-white text-[#65736d]'
-              "
-            >
-              Medium
-            </button>
-            <button
-              type="button"
-              (click)="draft.severity = 'high'"
-              class="rounded-lg border px-4 py-4 font-semibold"
-              [ngClass]="
-                draft.severity === 'high'
-                  ? 'border-red-300 bg-red-50 text-red-800'
-                  : 'border-[#d9e4df] bg-white text-[#65736d]'
-              "
-            >
-              High
-            </button>
-          </div>
-        </div>
-        <div class="flex justify-end gap-3 pt-2">
-
-  <button
-    type="button"
-    (click)="showCreateModal = false"
-    [disabled]="loading"
-    class="rounded-lg border border-[#cfdcd6] px-4 py-3 font-semibold text-[#24302b] hover:bg-[#f8fafc] disabled:opacity-50"
-  >
-    Annuler
-  </button>
-
-
-  <button
-    type="button"
-    (click)="submitCreate()"
-    [disabled]="loading"
-    class="rounded-lg bg-[#0f766e] px-5 py-3 font-semibold text-white hover:bg-[#115e59] disabled:cursor-not-allowed disabled:bg-[#8fbab5]"
-  >
-
-    <span *ngIf="!loading">
-      Envoyer l'alerte
-    </span>
-
-
-    <span *ngIf="loading">
-      Chiffrement et envoi...
-    </span>
-
-  </button>
-
-</div>
-      </div>
-    </div>
-  </div>
 </div>

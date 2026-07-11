@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { Login } from './features/auth/login/login';
 import { Register } from './features/auth/register/register';
 import { CommandCenter } from './features/dashboard/pages/command-center/command-center';
+import { RescueDashboard } from './features/rescue-team/pages/rescue-dashboard/rescue-dashboard';
 import { authGuard } from './core/guards/auth-guard';
 
 export const routes: Routes = [
@@ -20,6 +21,12 @@ export const routes: Routes = [
     component: CommandCenter,
     canActivate: [authGuard],
     data: { roles: ['user'] },
+  },
+  {
+    path: 'rescuer/dashboard',
+    component: RescueDashboard,
+    canActivate: [authGuard],
+    data: { roles: ['rescuer'] },
   },
   { path: 'user', redirectTo: '/user/dashboard', pathMatch: 'full' },
 ];
