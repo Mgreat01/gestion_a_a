@@ -9,6 +9,8 @@ export interface User {
 
 export interface AuthMeResponse {
   id?: string;
+  user_id?: string;
+  sub?: string;
   email?: string;
   role?: 'admin' | 'user';
   username?: string;

@@ -3,9 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Alert, CreateAlertPayload, CreateLocationPayload, UpdateAlertPayload } from '../../models/alert';
 import { Auth } from './auth';
+import { environment } from '../../../environments/environments';
 @Injectable({ providedIn: 'root' })
 export class Dashboard {
-  private http = inject(HttpClient); private auth = inject(Auth); private base='';
+  private http = inject(HttpClient); private auth = inject(Auth); private base= `${environment.apiUrl}`;
   getAlerts():Observable<Alert[]>{return this.http.get<Alert[]>(`${this.base}/alerts/`,{headers:this.auth.authHeaders()})}
   createAlert(payload:CreateAlertPayload):Observable<Alert>{
     console.log('Creating alert with payload: %o', payload);

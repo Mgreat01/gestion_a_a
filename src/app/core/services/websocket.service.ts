@@ -3,7 +3,7 @@ import { Subject, timer } from 'rxjs';
 
 import { WebSocketAlertMessage } from '../../models/alert';
 import { Auth } from './auth';
-
+import { environment } from '../../../environments/environments';
 @Injectable({ providedIn: 'root' })
 export class WebsocketService {
   private readonly auth = inject(Auth);
@@ -91,9 +91,23 @@ export class WebsocketService {
   }
 
   private buildWebSocketUrl(path: string, token: string): string {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host || 'localhost:8000';
-    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-    return `${protocol}//${host}${normalizedPath}?token=${encodeURIComponent(token)}`;
-  }
+
+  const apiUrl = environment.apiUrl;
+
+  const wsProtocol = apiUrl.startsWith('https')
+    ? 'wss'
+    : 'ws';
+
+
+  const host = apiUrl
+    .replace(/^https?:\/\//, '');
+
+
+  const normalizedPath = path.startsWith('/')
+    ? path
+    : `/${path}`;
+
+
+  return `${wsProtocol}://${host}${normalizedPath}?token=${encodeURIComponent(token)}`;
+}
 }

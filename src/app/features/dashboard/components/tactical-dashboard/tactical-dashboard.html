@@ -458,22 +458,36 @@
           </div>
         </div>
         <div class="flex justify-end gap-3 pt-2">
-          <button
-            type="button"
-            (click)="showCreateModal = false"
-            class="rounded-lg border border-[#cfdcd6] px-4 py-3 font-semibold text-[#24302b] hover:bg-[#f8fafc]"
-          >
-            Annuler
-          </button>
-          <button
-            type="button"
-            (click)="submitCreate()"
-            [disabled]="locating"
-            class="rounded-lg bg-[#0f766e] px-5 py-3 font-semibold text-white hover:bg-[#115e59] disabled:cursor-not-allowed disabled:bg-[#8fbab5]"
-          >
-            {{ locating ? 'Localisation...' : "Envoyer l'alerte" }}
-          </button>
-        </div>
+
+  <button
+    type="button"
+    (click)="showCreateModal = false"
+    [disabled]="loading"
+    class="rounded-lg border border-[#cfdcd6] px-4 py-3 font-semibold text-[#24302b] hover:bg-[#f8fafc] disabled:opacity-50"
+  >
+    Annuler
+  </button>
+
+
+  <button
+    type="button"
+    (click)="submitCreate()"
+    [disabled]="loading"
+    class="rounded-lg bg-[#0f766e] px-5 py-3 font-semibold text-white hover:bg-[#115e59] disabled:cursor-not-allowed disabled:bg-[#8fbab5]"
+  >
+
+    <span *ngIf="!loading">
+      Envoyer l'alerte
+    </span>
+
+
+    <span *ngIf="loading">
+      Chiffrement et envoi...
+    </span>
+
+  </button>
+
+</div>
       </div>
     </div>
   </div>
