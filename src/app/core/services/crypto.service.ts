@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CryptoPayload, JsonWebKeyPair } from '../../models/alert';
 
+export type PublicKeyInput = JsonWebKey | string;
 
 @Injectable({
   providedIn:'root'
@@ -71,8 +72,12 @@ privateKey
 
 
 async importPublicKey(
-key:JsonWebKey
+key:PublicKeyInput
 ):Promise<CryptoKey>{
+
+if (typeof key === 'string') {
+  return this.importPemPublicKey(key);
+}
 
 return crypto.subtle.importKey(
 
@@ -93,6 +98,48 @@ true,
 
 );
 
+}
+
+private async importPemPublicKey(pem:string):Promise<CryptoKey>{
+  const normalizedPem = pem
+    .replace(/-----BEGIN PUBLIC KEY-----/g, '')
+    .replace(/-----END PUBLIC KEY-----/g, '')
+    .replace(/\s+/g, '');
+
+  const binaryDer = this.base64ToArrayBuffer(normalizedPem);
+
+  return crypto.subtle.importKey(
+    'spki',
+    binaryDer,
+    {
+      name: 'RSA-OAEP',
+      hash: 'SHA-256',
+    },
+    true,
+    ['encrypt']
+  );
+}
+
+async generatePemPublicKey(): Promise<string> {
+  const keyPair = await this.generateKeyPair();
+  const exported = await this.exportKeyPair(keyPair);
+
+  const publicKeyJwk = exported.publicKey;
+  const publicKeyPem = await this.exportPublicKeyToPem(publicKeyJwk);
+
+  return publicKeyPem;
+}
+
+private async exportPublicKeyToPem(publicKey: JsonWebKey): Promise<string> {
+  const exported = await crypto.subtle.exportKey('spki', await crypto.subtle.importKey('jwk', publicKey, { name: 'RSA-OAEP', hash: 'SHA-256' }, true, ['encrypt']));
+  const bytes = new Uint8Array(exported);
+  let binary = '';
+
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+
+  return `-----BEGIN PUBLIC KEY-----\n${btoa(binary).match(/.{1,64}/g)?.join('\n') ?? btoa(binary)}\n-----END PUBLIC KEY-----`;
 }
 
 
@@ -254,6 +301,17 @@ key_encryption_algorithm:
 
 
 
+
+private base64ToArrayBuffer(base64:string):ArrayBuffer {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  return bytes.buffer;
+}
 
 private arrayToBase64(
 data:Uint8Array

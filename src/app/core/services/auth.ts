@@ -4,17 +4,25 @@ import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AuthMeResponse, User } from '../../models/user';
 import { environment } from '../../../environments/environments';
+import { CryptoService } from './crypto.service';
 
 @Injectable({ providedIn: 'root' })
 export class Auth {
   private http = inject(HttpClient);
+  private crypto = inject(CryptoService);
   private url = `${environment.apiUrl}/auth/`;
   login(user: User): Promise<any> {
     return firstValueFrom(this.http.post(this.url + 'login', { email: user.email, password: user.password }));
   }
 
-  register(user: User): Promise<any> {
-    return firstValueFrom(this.http.post(this.url + 'register', { ...user, role: 'user' }));
+  async register(user: User): Promise<any> {
+    const publicKey = await this.crypto.generatePemPublicKey();
+
+    return firstValueFrom(this.http.post(this.url + 'register', {
+      ...user,
+      role: 'user',
+      public_key: publicKey,
+    }));
   }
 
   me(): Promise<AuthMeResponse> {
@@ -42,6 +50,26 @@ export class Auth {
     const payload = this.decodeJwtPayload(token) as { sub?: string; user_id?: string; id?: string; userId?: string } | null;
 
     return payload?.sub ?? payload?.user_id ?? payload?.id ?? payload?.userId ?? null;
+  }
+
+  getCurrentUserPublicKey(): string | null {
+    const me = this.getMeCache();
+    const publicKey = me?.public_key ?? me?.publicKey;
+
+    if (typeof publicKey === 'string' && publicKey.trim()) {
+      return publicKey;
+    }
+
+    const token = this.getToken();
+
+    if (!token) {
+      return null;
+    }
+
+    const payload = this.decodeJwtPayload(token) as { public_key?: string; publicKey?: string } | null;
+    const tokenPublicKey = payload?.public_key ?? payload?.publicKey;
+
+    return typeof tokenPublicKey === 'string' && tokenPublicKey.trim() ? tokenPublicKey : null;
   }
   isAuth(){
     const token = this.getToken();

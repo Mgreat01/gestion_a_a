@@ -5,6 +5,8 @@ export interface User {
   email: string;
   role?: 'admin' | 'user';
   password?: string;
+  public_key?: string;
+  publicKey?: string;
 }
 
 export interface AuthMeResponse {
@@ -15,4 +17,6 @@ export interface AuthMeResponse {
   role?: 'admin' | 'user';
   username?: string;
   full_name?: string;
+  public_key?: string;
+  publicKey?: string;
 }
