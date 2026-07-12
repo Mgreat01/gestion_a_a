@@ -2,7 +2,8 @@ import { Routes } from '@angular/router';
 import { Login } from './features/auth/login/login';
 import { Register } from './features/auth/register/register';
 import { CommandCenter } from './features/dashboard/pages/command-center/command-center';
-import { RescueDashboard } from './features/rescue-team/pages/rescue-dashboard/rescue-dashboard';
+import { AdminUserManagementComponent } from './features/admin/pages/admin-user-management/admin-user-management';
+import { RescuerDashboardComponent } from './features/rescuer/pages/rescuer-dashboard/rescuer-dashboard';
 import { authGuard } from './core/guards/auth-guard';
 
 export const routes: Routes = [
@@ -24,9 +25,12 @@ export const routes: Routes = [
   },
   {
     path: 'rescuer/dashboard',
-    component: RescueDashboard,
+    component: RescuerDashboardComponent,
     canActivate: [authGuard],
-    data: { roles: ['rescuer'] },
+    data: { roles: ['rescuer', 'rescue_team'] },
   },
+  { path: 'rescuer/alerts', component: RescuerDashboardComponent, canActivate: [authGuard], data: { roles: ['rescuer', 'rescue_team'] } },
+  { path: 'admin/users', component: AdminUserManagementComponent, canActivate: [authGuard], data: { roles: ['admin'] } },
+  { path: 'admin/alerts', component: CommandCenter, canActivate: [authGuard], data: { roles: ['admin'] } },
   { path: 'user', redirectTo: '/user/dashboard', pathMatch: 'full' },
 ];

@@ -569,6 +569,17 @@ export class AlertStateService {
 
     }
 
+    if (message.type === 'alert_updated' && message.data) {
+      const alert = this.toAlert(message.data);
+
+      if (alert) {
+        this.alerts.update(alerts => this.uniqueLatestAlerts([
+          alert,
+          ...alerts.filter(item => item.id !== alert.id),
+        ]));
+      }
+    }
+
 
   }
 

@@ -12,6 +12,7 @@ export class Dashboard {
     console.log('Creating alert with payload: %o', payload);
     return this.http.post<Alert>(`${this.base}/alerts/`,payload,{headers:this.auth.authHeaders()})}
   updateAlert(alertId:string,payload:UpdateAlertPayload):Observable<any>{return this.http.put(`${this.base}/alerts/${alertId}`,payload,{headers:this.auth.authHeaders()})}
+  getAlertHistory(alertId: string): Observable<unknown[]> { return this.http.get<unknown[]>(`${this.base}/alerts/${alertId}/history`, { headers: this.auth.authHeaders() }); }
   createLocation(payload:CreateLocationPayload):Observable<any>{return this.http.post(`${this.base}/locations/`,payload,{headers:this.auth.authHeaders()})}
   getLocations(alertId:string):Observable<any>{return this.http.get(`${this.base}/locations/${alertId}`,{headers:this.auth.authHeaders()})}
 }

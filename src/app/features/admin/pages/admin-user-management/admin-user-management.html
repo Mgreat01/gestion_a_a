@@ -1,0 +1,21 @@
+<main class="min-h-screen bg-[#f4f7f5] p-4 text-[#17201c] lg:p-8">
+  <section class="mx-auto max-w-7xl rounded-xl border border-[#d9e4df] bg-white p-5 shadow-sm lg:p-7">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div><p class="text-xs font-bold uppercase text-[#65736d]">Administration</p><h1 class="mt-1 text-2xl font-bold">Gestion des utilisateurs</h1></div>
+      <button type="button" (click)="loadUsers()" class="rounded-lg border border-[#cfdcd6] px-4 py-2 font-semibold hover:bg-[#f8fafc]">Actualiser</button>
+    </div>
+    <p *ngIf="error()" class="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{{ error() }}</p>
+    <div class="mt-6 grid gap-3 md:grid-cols-4">
+      <input [ngModel]="query()" (ngModelChange)="query.set($event)" placeholder="Rechercher nom ou email" class="rounded-lg border border-[#cfdcd6] px-3 py-2.5 outline-none focus:border-[#0f766e]" />
+      <select [ngModel]="role()" (ngModelChange)="role.set($event)" class="rounded-lg border border-[#cfdcd6] px-3 py-2.5"><option value="all">Tous les rôles</option><option value="user">Utilisateur</option><option value="rescuer">Secouriste</option><option value="rescue_team">Équipe de secours</option><option value="admin">Admin</option></select>
+      <select [ngModel]="activity()" (ngModelChange)="activity.set($event)" class="rounded-lg border border-[#cfdcd6] px-3 py-2.5"><option value="all">Tout statut</option><option value="active">Actifs</option><option value="inactive">Inactifs</option></select>
+      <select [ngModel]="verification()" (ngModelChange)="verification.set($event)" class="rounded-lg border border-[#cfdcd6] px-3 py-2.5"><option value="all">Tous les emails</option><option value="verified">Vérifiés</option><option value="unverified">Non vérifiés</option></select>
+    </div>
+    <div class="mt-6 overflow-x-auto rounded-lg border border-[#d9e4df]">
+      <table class="min-w-full divide-y divide-[#e4ebe7] text-sm"><thead class="bg-[#f8fafc] text-left text-[#65736d]"><tr><th class="px-4 py-3">Utilisateur</th><th class="px-4 py-3">Rôle</th><th class="px-4 py-3">Statut</th><th class="px-4 py-3">Email</th><th class="px-4 py-3">Créé le</th><th class="px-4 py-3">Actions</th></tr></thead><tbody class="divide-y divide-[#e4ebe7]">
+        <tr *ngFor="let user of filteredUsers()" class="hover:bg-[#f8fafc]"><td class="px-4 py-3"><p class="font-semibold">{{ user.username || '—' }}</p><p class="text-[#65736d]">{{ user.email }}</p></td><td class="px-4 py-3">{{ user.role }}</td><td class="px-4 py-3"><span [class]="user.is_active ? 'text-emerald-700' : 'text-red-700'">{{ user.is_active ? 'Actif' : 'Inactif' }}</span></td><td class="px-4 py-3">{{ isVerified(user) ? 'Vérifié' : 'Non vérifié' }}</td><td class="px-4 py-3 text-[#65736d]">{{ user.created_at | date:'short' }}</td><td class="px-4 py-3"><div class="flex gap-2"><button (click)="toggleActivation(user)" class="rounded bg-[#e8f5f3] px-3 py-1.5 font-semibold text-[#0f766e]">{{ user.is_active ? 'Désactiver' : 'Activer' }}</button><button *ngIf="!isVerified(user)" (click)="verifyEmail(user)" class="rounded bg-[#f8fafc] px-3 py-1.5 font-semibold">Vérifier</button></div></td></tr>
+        <tr *ngIf="!loading() && !filteredUsers().length"><td colspan="6" class="px-4 py-8 text-center text-[#65736d]">Aucun utilisateur trouvé.</td></tr>
+      </tbody></table>
+    </div>
+  </section>
+</main>

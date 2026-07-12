@@ -14,7 +14,7 @@ export class MapView implements AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('mapContainer') mapContainer?: ElementRef<HTMLDivElement>;
 
   @Input() alerts: Alert[] = [];
-  @Input() mode: 'admin' | 'user' = 'user';
+  @Input() mode: 'admin' | 'user' | 'rescuer' = 'user';
   @Input() selectedAlertId: string | null = null;
 
   private map?: L.Map;

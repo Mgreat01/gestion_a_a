@@ -20,7 +20,7 @@ export const authGuard: CanActivateFn = (route) => {
 
       if (allowedRoles?.length && (!me.role || !allowedRoles.includes(me.role))) {
         const role = me.role ?? 'user';
-        const fallback = role === 'admin' ? '/admin/dashboard' : role === 'rescuer' ? '/rescuer/dashboard' : '/user/dashboard';
+        const fallback = role === 'admin' ? '/admin/dashboard' : (role === 'rescuer' || role === 'rescue_team') ? '/rescuer/dashboard' : '/user/dashboard';
         return router.createUrlTree([fallback]);
       }
 

@@ -139,7 +139,7 @@ export class UserManagementService {
    *
    * PUT
    *
-   * /users/{user_id}?is_active=true
+   * /auth/users/{user_id}/activation
    *
    */
   updateUserStatus(
@@ -152,30 +152,10 @@ export class UserManagementService {
 
 
 
-    const params =
-      new HttpParams()
-      .set(
-        'is_active',
-        String(isActive)
-      );
-
-
-
     return this.http.put<User>(
-
-
-      `${this.baseUrl}/users/${userId}`,
-
-      {},
-
-
-      {
-
-        params,
-
-        headers:this.auth.authHeaders()
-
-      }
+      `${this.baseUrl}/auth/users/${userId}/activation`,
+      { is_active: isActive },
+      { headers:this.auth.authHeaders() }
 
 
     ).pipe(
@@ -185,6 +165,14 @@ export class UserManagementService {
     );
 
 
+  }
+
+  verifyEmail(userId: string): Observable<User> {
+    return this.http.put<User>(
+      `${this.baseUrl}/auth/users/${userId}/verify-email`,
+      {},
+      { headers: this.auth.authHeaders() },
+    ).pipe(catchError(this.handleError));
   }
 
 

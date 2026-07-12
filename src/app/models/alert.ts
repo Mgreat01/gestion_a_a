@@ -3,7 +3,15 @@ export type AlertSeverity = 'low' | 'medium' | 'high';
 export type AlertStatus =
   | 'active'
   | 'acknowledged'
+  | 'assigned'
   | 'resolved';
+
+export interface RescuerDashboardStatistics {
+  received_alerts: number;
+  completed_alerts: number;
+  average_intervention_minutes: number;
+  nearby_alerts: number;
+}
 
 export const ALERT_ENCRYPTION_ALGORITHM = 'AES-256-GCM' as const;
 export const ALERT_KEY_ENCRYPTION_ALGORITHM = 'RSA-OAEP-SHA256' as const;
