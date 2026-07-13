@@ -9,6 +9,7 @@ import { LocationService } from '../../../../core/services/location.service';
 import { Auth } from '../../../../core/services/auth';
 import { MapView } from '../../../dashboard/components/map-view/map-view';
 import { DashboardSidebar, SidebarView } from '../../../dashboard/components/dashboard-sidebar/dashboard-sidebar';
+import { AlertStateService } from '../../../../core/services/alert-state.service';
 
 @Component({ selector: 'app-rescuer-dashboard', standalone: true, imports: [CommonModule, FormsModule, MapView, DashboardSidebar], templateUrl: './rescuer-dashboard.html', changeDetection: ChangeDetectionStrategy.OnPush })
 export class RescuerDashboardComponent implements OnInit, OnDestroy {
@@ -16,6 +17,7 @@ export class RescuerDashboardComponent implements OnInit, OnDestroy {
   private readonly location = inject(LocationService);
   private readonly auth = inject(Auth);
   private readonly router = inject(Router);
+  private readonly alertState = inject(AlertStateService);
   readonly assignedAlerts = this.state.assignedAlerts;
   readonly availableAlerts = this.state.availableAlerts;
   readonly nearbyAlerts = this.state.nearbyAlerts;
@@ -27,6 +29,7 @@ export class RescuerDashboardComponent implements OnInit, OnDestroy {
   readonly search = signal('');
   readonly selectedAlert = signal<Alert | null>(null);
   readonly currentUser = signal<AuthMeResponse | null>(this.auth.getMeCache());
+  readonly alerts = this.alertState.alerts;
   activeView: SidebarView = 'dashboard';
   readonly visibleAlerts = computed(() => {
     const query = this.search().trim().toLowerCase();
@@ -36,7 +39,7 @@ export class RescuerDashboardComponent implements OnInit, OnDestroy {
       (!query || `${alert.id} ${alert.address ?? ''} ${alert.assigned_to ?? ''}`.toLowerCase().includes(query)),
     );
   });
-  ngOnInit(): void { this.state.load(); this.state.connect(); void this.loadLocation(); }
+  ngOnInit(): void { this.state.load(); this.state.connect(); void this.loadLocation(); this.resolvedCount; }
   ngOnDestroy(): void { this.state.destroy(); }
   refresh(): void { this.state.load(); }
   logout(): void { this.auth.removeToken(); void this.router.navigate(['/login']); }
@@ -60,8 +63,16 @@ export class RescuerDashboardComponent implements OnInit, OnDestroy {
   elapsed(alert: Alert): string { const minutes = Math.max(0, Math.floor((Date.now() - Date.parse(alert.created_at)) / 60000)); return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h ${minutes % 60} min`; }
   severityClass(severity: Alert['severity']): string { return ({ high: 'bg-red-50 text-red-800 border border-red-200', medium: 'bg-amber-50 text-amber-800 border border-amber-200', low: 'bg-emerald-50 text-emerald-800 border border-emerald-200' })[severity]; }
   get activeCount(): number { return this.assignedAlerts().filter(alert => alert.status !== 'resolved').length; }
+  get resolCount(): number { return this.assignedAlerts().filter(alert => alert.status === 'resolved').length; }
   get criticalCount(): number { return this.assignedAlerts().filter(alert => alert.severity === 'high' && alert.status !== 'resolved').length; }
   get interventionCount(): number { return this.assignedAlerts().filter(alert => alert.status === 'assigned').length; }
   get sidebarItems(): { key: SidebarView; label: string }[] { return [{ key: 'dashboard', label: 'Opérations' }, { key: 'alerts', label: 'Interventions' }, { key: 'map', label: 'Carte' }, { key: 'analytics', label: 'Statistiques' }, { key: 'profile', label: 'Profil' }]; }
+  get activeAlerts(): Alert[] {
+    return this.alerts().filter((alert) => alert.status !== 'resolved');
+  }
+  get resolvedCount(): number {
+  return this.alerts().filter(a => a.status === 'resolved').length;
+}
+
   private async loadLocation(): Promise<void> { try { const position = await this.location.getCurrentPosition(); this.state.loadNearby(position.latitude, position.longitude); } catch { /* Nearby alerts remain unavailable until location permission is granted. */ } }
 }
