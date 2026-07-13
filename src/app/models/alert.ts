@@ -201,6 +201,12 @@ export interface UpdateAlertPayload {
 
 
 
+export interface AssignAlertPayload {
+  rescuer_id: string;
+  /** Already encrypted for the rescuer's public key. Never send a plaintext key. */
+  recipient_key?: RecipientKeyPayload;
+}
+
 // ==========================
 // LOCATION API
 // ==========================
