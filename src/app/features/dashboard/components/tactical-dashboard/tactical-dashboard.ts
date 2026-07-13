@@ -211,7 +211,7 @@ this.loadUsers();
 
 loadUsers(){
 
-this.userManagementService.getUsersByRole('user').subscribe(data=>{
+this.userManagementService.getUsers().subscribe(data=>{
 
 this.users=data;
 
@@ -664,7 +664,7 @@ position.accuracy;
 
 
 console.log(
-"📍 GPS:",
+" GPS:",
 {
 latitude,
 longitude,
@@ -718,7 +718,7 @@ accuracy
 
 
 console.log(
-"🚨 Payload avant chiffrement:",
+"Payload avant chiffrement:",
 payload
 );
 

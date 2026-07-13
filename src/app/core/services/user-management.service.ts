@@ -36,7 +36,7 @@ export class UserManagementService {
 
 
     return this.http.get<User[]>(
-      `${this.baseUrl}/users/`,
+      `${this.baseUrl}/auth/users/`,
       {
         headers:this.auth.authHeaders()
       }
