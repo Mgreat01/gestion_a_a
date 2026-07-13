@@ -17,6 +17,7 @@ export class RescuerDashboardComponent implements OnInit, OnDestroy {
   private readonly auth = inject(Auth);
   private readonly router = inject(Router);
   readonly assignedAlerts = this.state.assignedAlerts;
+  readonly availableAlerts = this.state.availableAlerts;
   readonly nearbyAlerts = this.state.nearbyAlerts;
   readonly statistics = this.state.statistics;
   readonly loading = this.state.loading;
@@ -48,6 +49,13 @@ export class RescuerDashboardComponent implements OnInit, OnDestroy {
     return null;
   }
   act(alert: Alert): void { const action = this.actionFor(alert); if (action) this.state.runAction(action.action, alert.id); }
+  claim(alert: Alert): void { this.state.claim(alert.id); }
+  canClaim(alert: Alert): boolean {
+    const user = this.currentUser();
+    return user?.role === 'rescuer' && user.is_active === true &&
+      (user.email_verified === true || user.is_verified === true) &&
+      alert.status === 'active' && !alert.assigned_to;
+  }
   locationLabel(alert: Alert): string { return alert.address || `${alert.location?.coordinates?.[1] ?? alert.latitude}, ${alert.location?.coordinates?.[0] ?? alert.longitude}`; }
   elapsed(alert: Alert): string { const minutes = Math.max(0, Math.floor((Date.now() - Date.parse(alert.created_at)) / 60000)); return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h ${minutes % 60} min`; }
   severityClass(severity: Alert['severity']): string { return ({ high: 'bg-red-50 text-red-800 border border-red-200', medium: 'bg-amber-50 text-amber-800 border border-amber-200', low: 'bg-emerald-50 text-emerald-800 border border-emerald-200' })[severity]; }

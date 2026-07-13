@@ -17,6 +17,7 @@ export class RescuerAlertService {
     return this.http.get<Alert[]>(`${this.baseUrl}/alerts/nearby/`, { ...this.options(), params });
   }
   statistics(): Observable<RescuerDashboardStatistics> { return this.http.get<RescuerDashboardStatistics>(`${this.baseUrl}/alerts/rescuer/dashboard/stats`, this.options()); }
+  claim(id: string): Observable<Alert> { return this.http.put<Alert>(`${this.baseUrl}/alerts/${id}/claim`, {}, this.options()); }
   accept(id: string): Observable<Alert> { return this.http.put<Alert>(`${this.baseUrl}/alerts/${id}/accept`, {}, this.options()); }
   start(id: string): Observable<Alert> { return this.http.put<Alert>(`${this.baseUrl}/alerts/${id}/start`, {}, this.options()); }
   resolve(id: string): Observable<Alert> { return this.http.put<Alert>(`${this.baseUrl}/alerts/${id}/resolve`, {}, this.options()); }

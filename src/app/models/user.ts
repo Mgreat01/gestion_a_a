@@ -24,6 +24,8 @@ export interface AuthMeResponse {
   public_key?: string;
   publicKey?: string;
   is_active?: boolean;
+  is_verified?: boolean;
+  email_verified?: boolean;
 }
 
 export type UserRole =

@@ -29,6 +29,7 @@ import {
   Alert,
   AlertSeverity,
   AlertStatus,
+  AssignAlertPayload,
   CreateEncryptedAlertRequest,
   DashboardStatistics,
   UpdateAlertPayload
@@ -64,6 +65,11 @@ import {
 import {
   UserManagementService
 } from '../../../../core/services/user-management.service';
+
+
+import {
+  Dashboard
+} from '../../../../core/services/dashboard';
 
 
 import {
@@ -110,6 +116,8 @@ private readonly router = inject(Router);
 private readonly locationService = inject(LocationService);
 
 private readonly userManagementService = inject(UserManagementService);
+
+private readonly dashboard = inject(Dashboard);
 
 
 
@@ -170,6 +178,9 @@ payload:UpdateAlertPayload;
 clearNotifications =
 new EventEmitter<void>();
 
+@Output()
+assignAlert = new EventEmitter<{ alertId: string; payload: AssignAlertPayload }>();
+
 
 
 
@@ -182,12 +193,18 @@ activeView:SidebarView='dashboard';
 
 users:User[]=[];
 
+rescuers:User[]=[];
+
+selectedRescuerId = '';
+recipientEncryptedKey = '';
+
 
 ngOnInit(){
 
 if(this.isAdmin){
 
 this.loadUsers();
+this.loadRescuers();
 
 }
 
@@ -214,6 +231,17 @@ loadUsers(){
 this.userManagementService.getUsers().subscribe(data=>{
 
 this.users=data;
+
+});
+
+}
+
+
+loadRescuers(){
+
+this.userManagementService.getUsersByRole('rescuer').subscribe(data=>{
+
+this.rescuers=data.filter(u=>u.is_active);
 
 });
 
@@ -297,6 +325,14 @@ get isUser(){
 
 return this.currentUser?.role==='user';
 
+}
+
+get eligibleRescuers(): User[] {
+  return this.users.filter(user =>
+    (user.role === 'rescuer' || user.role === 'rescue_team') &&
+    user.is_active === true &&
+    (user.email_verified === true || user.is_verified === true),
+  );
 }
 
 
@@ -563,6 +599,26 @@ closeDrawer(){
 
 this.selectedAlert=null;
 
+this.selectedRescuerId='';
+this.recipientEncryptedKey='';
+
+}
+
+assignSelectedAlert(): void {
+  if (!this.selectedAlert || !this.selectedRescuerId) return;
+
+  const payload: AssignAlertPayload = { rescuer_id: this.selectedRescuerId };
+  const encryptedKey = this.recipientEncryptedKey.trim();
+
+  if (encryptedKey) {
+    payload.recipient_key = {
+      recipient_user_id: this.selectedRescuerId,
+      encrypted_key: encryptedKey,
+      key_encryption_algorithm: 'RSA-OAEP-SHA256',
+    };
+  }
+
+  this.assignAlert.emit({ alertId: this.selectedAlert.id, payload });
 }
 
 
@@ -837,6 +893,57 @@ toggleUser(user:User){
 this.userManagementService.updateUserStatus(user.id!,!user.is_active).subscribe(()=>{
 
 user.is_active=!user.is_active;
+
+});
+
+}
+
+
+assignAlertToRescuer(alertId:string){
+
+if(!this.selectedRescuerId){
+
+return;
+
+}
+
+const payload:AssignAlertPayload={
+
+rescuer_id:this.selectedRescuerId
+
+};
+
+if(this.recipientEncryptedKey){
+
+payload.recipient_key={
+
+recipient_user_id:this.selectedRescuerId,
+
+encrypted_key:this.recipientEncryptedKey,
+
+key_encryption_algorithm:'RSA-OAEP-SHA256'
+
+};
+
+}
+
+this.dashboard.assignAlert(alertId,payload).subscribe({
+
+next:()=>{
+
+this.selectedRescuerId='';
+
+this.recipientEncryptedKey='';
+
+this.updateAlert.emit({alertId,payload:{status:'assigned'}});
+
+},
+
+error:(err)=>{
+
+console.error('Failed to assign alert:',err);
+
+}
 
 });
 

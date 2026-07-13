@@ -3,7 +3,7 @@ import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 
 import { AlertStateService } from '../../../../core/services/alert-state.service';
 import { Auth } from '../../../../core/services/auth';
-import { CreateEncryptedAlertRequest, UpdateAlertPayload } from '../../../../models/alert';
+import { AssignAlertPayload, CreateEncryptedAlertRequest, UpdateAlertPayload } from '../../../../models/alert';
 import { AuthMeResponse } from '../../../../models/user';
 import { TacticalDashboard } from '../../components/tactical-dashboard/tactical-dashboard';
 
@@ -47,6 +47,10 @@ export class CommandCenter implements OnInit, OnDestroy {
 
   onUpdateAlert(event: { alertId: string; payload: UpdateAlertPayload }): void {
     this.alertState.updateAlert(event.alertId, event.payload);
+  }
+
+  onAssignAlert(event: { alertId: string; payload: AssignAlertPayload }): void {
+    this.alertState.assignAlert(event.alertId, event.payload);
   }
 
   private async loadCurrentUser(): Promise<void> {

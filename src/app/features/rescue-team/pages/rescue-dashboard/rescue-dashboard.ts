@@ -64,6 +64,17 @@ export class RescueDashboard implements OnInit, OnDestroy {
     this.alertState.updateAlert(alertId, payload);
   }
 
+  claimAlert(alertId: string): void {
+    this.dashboard.claimAlert(alertId).subscribe({
+      next: () => {
+        this.alertState.loadAlerts();
+      },
+      error: (err) => {
+        console.error('Failed to claim alert:', err);
+      }
+    });
+  }
+
   toggleUser(user: User): void {
     this.userService.updateUserStatus(user.id!, !user.is_active).subscribe(() => {
       user.is_active = !user.is_active;
@@ -89,6 +100,14 @@ export class RescueDashboard implements OnInit, OnDestroy {
 
   get activeAlerts(): Alert[] {
     return this.alerts().filter((alert) => alert.status !== 'resolved');
+  }
+
+  get availableAlerts(): Alert[] {
+    return this.alerts().filter((alert) => alert.status === 'active' && !alert.assigned_to);
+  }
+
+  get myAssignedAlerts(): Alert[] {
+    return this.alerts().filter((alert) => alert.assigned_to === this.currentUser()?.id);
   }
 
   get sidebarItems(): { key: SidebarView; label: string }[] {

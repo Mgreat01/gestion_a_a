@@ -583,6 +583,16 @@ export class AlertStateService {
 
   }
 
+  assignAlert(alertId: string, payload: import('../../models/alert').AssignAlertPayload): void {
+    this.dashboard.assignAlert(alertId, payload).subscribe({
+      next: updatedAlert => {
+        const alert = this.toAlert(updatedAlert);
+        if (alert) this.alerts.update(alerts => this.uniqueLatestAlerts([alert, ...alerts.filter(item => item.id !== alert.id)]));
+      },
+      error: err => this.error.set(err?.error?.detail ?? "Erreur d'affectation de l'alerte"),
+    });
+  }
+
 
 
 
