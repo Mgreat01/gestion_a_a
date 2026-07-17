@@ -31,6 +31,14 @@
         <input type="password" id="password" name="password" [(ngModel)]="user.password" required minlength="6" placeholder="Minimum 6 caractères" autocomplete="new-password" class="w-full rounded-lg border border-[#cfdcd6] bg-white px-4 py-3 text-[#17201c] outline-none placeholder:text-[#93a19b] focus:border-[#0f766e] focus:ring-2 focus:ring-[#b9d9d4]" />
       </div>
 
+      <div>
+        <label for="role" class="mb-2 block text-sm font-semibold text-[#24302b]">Rôle</label>
+        <select id="role" name="role" [(ngModel)]="user.role" required class="w-full rounded-lg border border-[#cfdcd6] bg-white px-4 py-3 text-[#17201c] outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-[#b9d9d4]">
+          <option value="user">Utilisateur</option>
+          <option value="rescuer">Secouriste</option>
+        </select>
+      </div>
+
       <button type="submit" [disabled]="registerForm.invalid" class="w-full rounded-lg bg-[#0f766e] px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-[#115e59] disabled:opacity-50">
         S'inscrire
       </button>

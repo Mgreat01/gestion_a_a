@@ -46,9 +46,36 @@ export class Login {
         setTimeout(() => this.router.navigate([redirectPath]), 1000);
       })
       .catch(err => {
-        this.error = err.error?.message || 'Email ou mot de passe incorrect';
         this.message = '';
-        console.error(err);
+        const status = err.status;
+        
+        switch (status) {
+          case 400:
+            this.error = 'Requête invalide. Vérifiez vos informations.';
+            break;
+          case 401:
+            this.error = 'Email ou mot de passe incorrect.';
+            break;
+          case 403:
+            this.error = 'Accès refusé. Votre compte est peut-être désactivé.';
+            break;
+          case 404:
+            this.error = 'Utilisateur non trouvé.';
+            break;
+          case 422:
+            this.error = err.error?.detail || 'Données invalides.';
+            break;
+          case 500:
+            this.error = 'Erreur serveur. Veuillez réessayer plus tard.';
+            break;
+          case 0:
+            this.error = 'Erreur de connexion. Vérifiez votre internet.';
+            break;
+          default:
+            this.error = err.error?.detail || err.error?.message || 'Erreur lors de la connexion.';
+        }
+        
+        console.error('Login error:', err);
       });
   }
 }

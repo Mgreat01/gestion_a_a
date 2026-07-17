@@ -16,7 +16,8 @@ export class Register {
   user: User = {
     username: '',
     email: '',
-    password: ''
+    password: '',
+    role: 'user'
   };
 
   message = '';

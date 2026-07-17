@@ -20,7 +20,7 @@ export class Auth {
 
     return firstValueFrom(this.http.post(this.url + 'register', {
       ...user,
-      role: 'user',
+      role: user.role || 'user',
       public_key: publicKey,
     }));
   }
