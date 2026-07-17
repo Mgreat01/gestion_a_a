@@ -242,14 +242,7 @@
                       >
                         Voir
                       </button>
-                      <!-- <button
-                        *ngIf="isAdmin && !a.assigned_to"
-                        type="button"
-                        (click)="selectedAlert = a"
-                        class="rounded-lg border border-[#0f766e] bg-[#e8f5f3] px-3 py-1.5 font-semibold text-[#0f766e] hover:bg-[#d1e8e4]"
-                      >
-                        Assigner
-                      </button> -->
+                      
                       <button
                         *ngIf="isAdmin"
                         type="button"
@@ -336,6 +329,15 @@
                     >
                       {{ user.is_active ? 'Désactiver' : 'Activer' }}
                     </button>
+
+                    <button  *ngIf="user.role == 'rescuer' "
+                      type="button"
+                      (click)="toggleRescuer(user)"
+                      class="ml-5 rounded-lg px-3 py-1.5 text-sm font-semibold"
+                      [ngClass]="user.is_active ? 'border-amber-200 bg-amber-50 text-amber-800' : 'border-emerald-200 bg-emerald-50 text-emerald-800'"
+                    >
+                      {{ user.is_active ? 'permettre' : 'refuser' }}
+                    </button>
                   </td>
                 </tr>
               </tbody>
@@ -375,7 +377,7 @@
 
   <aside
     *ngIf="selectedAlert"
-    class="fixed inset-y-0 right-0 z-50 w-full max-w-md border-l border-[#d9e4df] bg-white p-6 text-[#17201c] shadow-2xl"
+    class="fixed inset-y-0 right-0 z-50 w-full max-w-md border-l border-[#d9e4df] bg-white p-6  text-[#17201c] shadow-2xl"
   >
     <div class="flex items-start justify-between gap-4">
       <div>
@@ -405,12 +407,12 @@
         <p class="mt-1 text-sm leading-6">{{ locationLabel(selectedAlert) }}</p>
       </div>
       <div class="rounded-lg border border-[#d9e4df] bg-[#f8fafc] p-4">
-        <p class="text-sm text-[#65736d]">Contenu chiffré</p>
+        <p class="text-sm text-[#65736d]">Contenu du message</p>
         <p class="mt-2 break-all font-mono text-xs leading-6 text-[#24302b]">
           {{ selectedAlert.encrypted_content }}
         </p>
       </div>
-      <div *ngIf="isAdmin && !selectedAlert.assigned_to" class="rounded-lg border border-[#d9e4df] bg-[#f8fafc] p-4">
+      <!-- <div *ngIf="isAdmin && !selectedAlert.assigned_to" class="rounded-lg border border-[#d9e4df] bg-[#f8fafc] p-4">
         <p class="text-sm font-semibold text-[#17201c]">Affecter à un secouriste</p>
         <p class="mt-1 text-xs leading-5 text-[#65736d]">Seuls les comptes rescuer actifs et vérifiés sont proposés. La clé destinataire est facultative si elle existe déjà côté serveur.</p>
         <select [(ngModel)]="selectedRescuerId" class="mt-3 w-full rounded-lg border border-[#cfdcd6] bg-white px-3 py-2 text-sm">
@@ -419,7 +421,7 @@
         </select>
         <input [(ngModel)]="recipientEncryptedKey" type="password" autocomplete="off" placeholder="Clé AES déjà chiffrée (optionnelle)" class="mt-2 w-full rounded-lg border border-[#cfdcd6] bg-white px-3 py-2 text-sm" />
         <button type="button" [disabled]="!selectedRescuerId || selectedAlert.status !== 'active'" (click)="assignAlertToRescuer(selectedAlert.id)" class="mt-3 w-full rounded-lg bg-[#0f766e] px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#8fbab5]">Affecter l'alerte</button>
-      </div>
+      </div> -->
       <div *ngIf="isAdmin" class="grid grid-cols-2 gap-3 pt-2">
         <button
           type="button"

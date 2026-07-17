@@ -327,6 +327,12 @@ return this.currentUser?.role==='user';
 
 }
 
+get isRescuer(){
+
+return this.currentUser?.role==='rescuer';
+
+}
+
 get eligibleRescuers(): User[] {
   return this.users.filter(user =>
     (user.role === 'rescuer' || user.role === 'rescue_team') &&
@@ -889,6 +895,16 @@ this.router.navigate(['/login']);
 
 
 toggleUser(user:User){
+
+this.userManagementService.updateUserStatus(user.id!,!user.is_active).subscribe(()=>{
+
+user.is_active=!user.is_active;
+
+});
+
+}
+
+toggleRescuer(user:User){
 
 this.userManagementService.updateUserStatus(user.id!,!user.is_active).subscribe(()=>{
 

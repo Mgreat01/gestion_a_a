@@ -166,6 +166,27 @@ export class UserManagementService {
 
 
   }
+  updateRescuerStatus(
+
+    userId:string,
+
+  ):Observable<User>{
+
+
+
+    return this.http.put<User>(
+      `${this.baseUrl}/auth/users/${userId}/rescuer-status`,
+      { headers:this.auth.authHeaders() }
+
+
+    ).pipe(
+
+      catchError(this.handleError)
+
+    );
+
+
+  }
 
   verifyEmail(userId: string): Observable<User> {
     return this.http.put<User>(
